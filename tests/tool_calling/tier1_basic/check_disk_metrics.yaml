@@ -1,0 +1,39 @@
+name: check_disk_metrics
+tier: 1
+category: tool_calling
+description: Get disk usage metrics for a storage server
+
+prompt: "Can you pull the disk usage metrics on storage-01? We got an alert that it might be filling up."
+
+available_tools:
+  - get_metrics
+  - check_logs
+  - run_script
+
+expected_tool_calls:
+  - tool: get_metrics
+    params:
+      host: storage-01
+      metric_type: disk
+
+simulated_responses:
+  get_metrics:
+    host: storage-01
+    metric_type: disk
+    timestamp: "2026-03-30T14:35:00Z"
+    data:
+      - mount: "/"
+        total_gb: 500
+        used_gb: 465
+        free_gb: 35
+        usage_percent: 93.0
+      - mount: "/data"
+        total_gb: 4000
+        used_gb: 3720
+        free_gb: 280
+        usage_percent: 93.0
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

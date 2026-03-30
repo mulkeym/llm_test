@@ -1,0 +1,30 @@
+name: run_backup_script
+tier: 1
+category: tool_calling
+description: Run a backup script on the backup server
+
+prompt: "Kick off the nightly backup script on backup-01. The script is at /opt/scripts/backup.sh."
+
+available_tools:
+  - run_script
+  - check_service_status
+  - send_notification
+
+expected_tool_calls:
+  - tool: run_script
+    params:
+      command: "/opt/scripts/backup.sh"
+      host: backup-01
+
+simulated_responses:
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "Backup started at 2026-03-30T14:45:00Z\nBacking up /data... done\nBacking up /var/lib/postgresql... done\nBackup completed successfully. Archive: /backups/backup-20260330.tar.gz (42.3 GB)"
+    stderr: ""
+    duration_seconds: 1847
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

@@ -1,0 +1,57 @@
+name: ambiguous_restart
+tier: 2
+category: tool_calling
+description: Ambiguous request — should check status before blindly restarting
+
+prompt: "Hey, the service is down on app-prod-01. Fix it please."
+
+available_tools:
+  - check_service_status
+  - restart_service
+  - check_logs
+  - get_metrics
+  - ping_host
+  - create_ticket
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: application
+      host: app-prod-01
+  - tool: check_logs
+    params:
+      service: application
+      severity: error
+      host: app-prod-01
+  - tool: restart_service
+    params:
+      service_name: application
+      host: app-prod-01
+
+simulated_responses:
+  check_service_status:
+    service_name: application
+    host: app-prod-01
+    status: stopped
+    uptime: null
+    pid: null
+    last_exit_code: 137
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T14:00:00Z"
+        level: error
+        message: "Out of memory: Killed process 8842 (java)"
+      - timestamp: "2026-03-30T14:00:01Z"
+        level: critical
+        message: "Service exited with code 137 (OOM killed)"
+    total_count: 3
+  restart_service:
+    status: success
+    message: "Service application started successfully on app-prod-01"
+    timestamp: "2026-03-30T14:32:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

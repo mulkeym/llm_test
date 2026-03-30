@@ -1,0 +1,32 @@
+name: ping_server
+tier: 1
+category: tool_calling
+description: Ping a database server to verify network reachability
+
+prompt: "Can you ping db-prod-01 for me? I want to make sure it's reachable from the network."
+
+available_tools:
+  - ping_host
+  - check_service_status
+  - traceroute
+
+expected_tool_calls:
+  - tool: ping_host
+    params:
+      host: db-prod-01
+
+simulated_responses:
+  ping_host:
+    host: db-prod-01
+    ip: "10.0.2.15"
+    packets_sent: 4
+    packets_received: 4
+    packet_loss: "0%"
+    avg_latency_ms: 1.2
+    min_latency_ms: 0.8
+    max_latency_ms: 2.1
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

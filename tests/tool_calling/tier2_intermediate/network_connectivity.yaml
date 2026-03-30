@@ -1,0 +1,67 @@
+name: network_connectivity
+tier: 2
+category: tool_calling
+description: Progressive network diagnostics — ping, traceroute, then check port
+
+prompt: "We can't reach the API gateway at api-gw-01 from the office network. Ping it first, then run a traceroute to see where packets are dropping, and check if port 8443 is open."
+
+available_tools:
+  - ping_host
+  - traceroute
+  - check_port
+  - dns_lookup
+  - check_service_status
+  - get_metrics
+
+expected_tool_calls:
+  - tool: ping_host
+    params:
+      host: api-gw-01
+  - tool: traceroute
+    params:
+      host: api-gw-01
+  - tool: check_port
+    params:
+      host: api-gw-01
+      port: 8443
+
+simulated_responses:
+  ping_host:
+    host: api-gw-01
+    ip: "10.0.5.20"
+    packets_sent: 4
+    packets_received: 0
+    packet_loss: "100%"
+    avg_latency_ms: null
+    error: "Request timed out"
+  traceroute:
+    host: api-gw-01
+    hops:
+      - hop: 1
+        ip: "10.0.0.1"
+        hostname: "gw-office"
+        latency_ms: 1.2
+      - hop: 2
+        ip: "10.0.3.1"
+        hostname: "fw-core-01"
+        latency_ms: 2.5
+      - hop: 3
+        ip: "*"
+        hostname: null
+        latency_ms: null
+        note: "Request timed out"
+    completed: false
+    error: "Traceroute terminated at hop 3 — no response"
+  check_port:
+    host: api-gw-01
+    port: 8443
+    protocol: tcp
+    status: filtered
+    response_time_ms: null
+    error: "Connection timed out — port may be filtered by firewall"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

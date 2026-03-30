@@ -1,0 +1,127 @@
+name: cross_datacenter_check
+tier: 3
+category: tool_calling
+description: Parallel network checks across 3 hosts in different datacenters — ping, traceroute, check port for each
+
+prompt: "We need to verify connectivity to our load balancers in all three datacenters: lb-us-east-01, lb-us-west-01, and lb-eu-01. For each one, ping it, run a traceroute, and check if port 443 is open. Run the checks in parallel where possible."
+
+available_tools:
+  - ping_host
+  - traceroute
+  - check_port
+  - check_service_status
+  - dns_lookup
+  - get_metrics
+  - check_logs
+  - restart_service
+  - run_script
+  - create_ticket
+  - send_notification
+  - lookup_user
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: ping_host
+    params:
+      host: lb-us-east-01
+  - tool: ping_host
+    params:
+      host: lb-us-west-01
+  - tool: ping_host
+    params:
+      host: lb-eu-01
+  - tool: traceroute
+    params:
+      host: lb-us-east-01
+  - tool: traceroute
+    params:
+      host: lb-us-west-01
+  - tool: traceroute
+    params:
+      host: lb-eu-01
+  - tool: check_port
+    params:
+      host: lb-us-east-01
+      port: 443
+  - tool: check_port
+    params:
+      host: lb-us-west-01
+      port: 443
+  - tool: check_port
+    params:
+      host: lb-eu-01
+      port: 443
+
+simulated_responses:
+  ping_host_us_east:
+    host: lb-us-east-01
+    ip: "10.1.1.10"
+    packets_sent: 4
+    packets_received: 4
+    packet_loss: "0%"
+    avg_latency_ms: 1.2
+  ping_host_us_west:
+    host: lb-us-west-01
+    ip: "10.2.1.10"
+    packets_sent: 4
+    packets_received: 4
+    packet_loss: "0%"
+    avg_latency_ms: 45.3
+  ping_host_eu:
+    host: lb-eu-01
+    ip: "10.3.1.10"
+    packets_sent: 4
+    packets_received: 2
+    packet_loss: "50%"
+    avg_latency_ms: 120.5
+  traceroute_us_east:
+    host: lb-us-east-01
+    hops:
+      - { hop: 1, ip: "10.0.0.1", hostname: "gw-core", latency_ms: 0.5 }
+      - { hop: 2, ip: "10.1.0.1", hostname: "rtr-us-east", latency_ms: 1.0 }
+      - { hop: 3, ip: "10.1.1.10", hostname: "lb-us-east-01", latency_ms: 1.2 }
+    completed: true
+  traceroute_us_west:
+    host: lb-us-west-01
+    hops:
+      - { hop: 1, ip: "10.0.0.1", hostname: "gw-core", latency_ms: 0.5 }
+      - { hop: 2, ip: "172.16.0.1", hostname: "isp-peer", latency_ms: 10.2 }
+      - { hop: 3, ip: "172.16.5.1", hostname: "isp-backbone", latency_ms: 35.0 }
+      - { hop: 4, ip: "10.2.1.10", hostname: "lb-us-west-01", latency_ms: 45.3 }
+    completed: true
+  traceroute_eu:
+    host: lb-eu-01
+    hops:
+      - { hop: 1, ip: "10.0.0.1", hostname: "gw-core", latency_ms: 0.5 }
+      - { hop: 2, ip: "172.16.0.1", hostname: "isp-peer", latency_ms: 10.2 }
+      - { hop: 3, ip: "195.66.224.1", hostname: "linx-peer", latency_ms: 80.5 }
+      - { hop: 4, ip: "10.3.0.1", hostname: "rtr-eu", latency_ms: 110.0 }
+      - { hop: 5, ip: "10.3.1.10", hostname: "lb-eu-01", latency_ms: 120.5 }
+    completed: true
+  check_port_us_east:
+    host: lb-us-east-01
+    port: 443
+    status: open
+    response_time_ms: 3
+  check_port_us_west:
+    host: lb-us-west-01
+    port: 443
+    status: open
+    response_time_ms: 48
+  check_port_eu:
+    host: lb-eu-01
+    port: 443
+    status: open
+    response_time_ms: 135
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

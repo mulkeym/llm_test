@@ -1,0 +1,63 @@
+name: escalation_workflow
+tier: 2
+category: tool_calling
+description: Check logs, create ticket, send notification to on-call engineer
+
+prompt: "The monitoring system flagged a critical error on payment-svc-01. Check the service logs, create a critical priority ticket, and page the on-call engineer via Slack at #oncall-alerts."
+
+available_tools:
+  - check_logs
+  - create_ticket
+  - send_notification
+  - check_service_status
+  - restart_service
+  - get_metrics
+  - lookup_user
+
+expected_tool_calls:
+  - tool: check_logs
+    params:
+      service: payment-svc
+      severity: error
+      host: payment-svc-01
+  - tool: create_ticket
+    params:
+      title: "Critical error on payment-svc-01"
+      description: "Monitoring flagged critical errors on the payment service. Logs show database connection pool exhaustion and transaction failures."
+      priority: critical
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#oncall-alerts"
+      message: "CRITICAL: payment-svc-01 is experiencing critical errors. Ticket created. Immediate attention required."
+      urgency: critical
+
+simulated_responses:
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T14:25:00Z"
+        level: critical
+        message: "Database connection pool exhausted — all 50 connections in use"
+      - timestamp: "2026-03-30T14:25:05Z"
+        level: error
+        message: "Transaction failed: could not obtain database connection within 30s timeout"
+      - timestamp: "2026-03-30T14:25:10Z"
+        level: error
+        message: "Payment processing failed for order #98234 — database unavailable"
+    total_count: 156
+  create_ticket:
+    ticket_id: "INC-20260330-0044"
+    status: created
+    priority: critical
+    created_at: "2026-03-30T14:30:00Z"
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#oncall-alerts"
+    timestamp: "2026-03-30T14:30:05Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

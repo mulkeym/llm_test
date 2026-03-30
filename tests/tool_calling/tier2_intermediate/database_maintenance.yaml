@@ -1,0 +1,55 @@
+name: database_maintenance
+tier: 2
+category: tool_calling
+description: Check database status, run a maintenance query, then notify when done
+
+prompt: "I need to run scheduled maintenance on the inventory database. First check that PostgreSQL is running on db-prod-02, then run a VACUUM ANALYZE on the inventory database, and send a Slack message to #dba-team when it's done."
+
+available_tools:
+  - check_service_status
+  - query_database
+  - send_notification
+  - restart_service
+  - get_metrics
+  - check_logs
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: postgresql
+      host: db-prod-02
+  - tool: query_database
+    params:
+      query: "VACUUM ANALYZE"
+      database: inventory
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#dba-team"
+      message: "Scheduled maintenance completed on inventory database (db-prod-02). VACUUM ANALYZE finished successfully."
+
+simulated_responses:
+  check_service_status:
+    service_name: postgresql
+    host: db-prod-02
+    status: running
+    uptime: "120d 5h 42m"
+    pid: 2103
+    memory_mb: 4096
+    cpu_percent: 12.3
+  query_database:
+    status: success
+    message: "VACUUM ANALYZE completed"
+    duration_seconds: 342
+    tables_processed: 48
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#dba-team"
+    timestamp: "2026-03-30T15:00:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

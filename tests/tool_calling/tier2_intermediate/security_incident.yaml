@@ -1,0 +1,78 @@
+name: security_incident
+tier: 2
+category: tool_calling
+description: Security incident response — check logs, look up user, create ticket, notify security team
+
+prompt: "We detected multiple failed SSH login attempts from user rjones on jump-01. Check the auth logs, look up who rjones is, file a security incident ticket, and notify the security team on Slack."
+
+available_tools:
+  - check_logs
+  - lookup_user
+  - create_ticket
+  - send_notification
+  - check_service_status
+  - get_metrics
+  - run_script
+
+expected_tool_calls:
+  - tool: check_logs
+    params:
+      service: sshd
+      severity: warning
+      host: jump-01
+  - tool: lookup_user
+    params:
+      username: rjones
+  - tool: create_ticket
+    params:
+      title: "Security incident — multiple failed SSH logins from rjones on jump-01"
+      description: "Multiple failed SSH login attempts detected from user rjones on jump-01. User account belongs to Robert Jones (terminated employee). Possible unauthorized access attempt."
+      priority: critical
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#security-team"
+      message: "SECURITY ALERT: Multiple failed SSH login attempts from user rjones on jump-01. Incident ticket created. Immediate investigation required."
+      urgency: critical
+
+simulated_responses:
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T13:55:00Z"
+        level: warning
+        message: "Failed password for rjones from 198.51.100.45 port 52341 ssh2"
+      - timestamp: "2026-03-30T13:55:05Z"
+        level: warning
+        message: "Failed password for rjones from 198.51.100.45 port 52342 ssh2"
+      - timestamp: "2026-03-30T13:55:10Z"
+        level: warning
+        message: "Failed password for rjones from 198.51.100.45 port 52343 ssh2"
+      - timestamp: "2026-03-30T13:55:15Z"
+        level: error
+        message: "maximum authentication attempts exceeded for rjones from 198.51.100.45"
+    total_count: 47
+  lookup_user:
+    username: rjones
+    full_name: "Robert Jones"
+    email: "robert.jones@company.com"
+    department: "Former Employee"
+    title: "Systems Administrator"
+    manager: "N/A"
+    status: disabled
+    termination_date: "2026-02-15"
+  create_ticket:
+    ticket_id: "SEC-20260330-0008"
+    status: created
+    priority: critical
+    created_at: "2026-03-30T14:35:00Z"
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#security-team"
+    timestamp: "2026-03-30T14:35:05Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

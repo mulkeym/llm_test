@@ -1,0 +1,60 @@
+name: firewall_change_request
+tier: 2
+category: tool_calling
+description: Check current port access, update firewall rule, then notify the requester
+
+prompt: "The dev team needs port 5432 opened from the app subnet 10.0.10.0/24 to the database subnet 10.0.20.0/24. Check if it's currently accessible, add the firewall rule if it's not, and notify dev-lead@company.com by email when it's done."
+
+available_tools:
+  - check_port
+  - update_firewall_rule
+  - send_notification
+  - create_ticket
+  - query_database
+  - ping_host
+
+expected_tool_calls:
+  - tool: check_port
+    params:
+      host: "10.0.20.0"
+      port: 5432
+  - tool: update_firewall_rule
+    params:
+      action: add
+      source: "10.0.10.0/24"
+      destination: "10.0.20.0/24"
+      port: 5432
+      protocol: tcp
+  - tool: send_notification
+    params:
+      channel: email
+      recipient: "dev-lead@company.com"
+      message: "Firewall rule added: port 5432/tcp opened from 10.0.10.0/24 to 10.0.20.0/24. The dev team can now access the database subnet."
+
+simulated_responses:
+  check_port:
+    host: "10.0.20.0"
+    port: 5432
+    protocol: tcp
+    status: filtered
+    response_time_ms: null
+    error: "Connection timed out — port is blocked"
+  update_firewall_rule:
+    status: success
+    rule_id: "FW-2026033-0112"
+    action: add
+    source: "10.0.10.0/24"
+    destination: "10.0.20.0/24"
+    port: 5432
+    protocol: tcp
+  send_notification:
+    status: sent
+    channel: email
+    recipient: "dev-lead@company.com"
+    timestamp: "2026-03-30T15:10:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

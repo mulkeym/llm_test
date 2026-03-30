@@ -1,0 +1,31 @@
+name: lookup_employee
+tier: 1
+category: tool_calling
+description: Look up an employee in Active Directory by username
+
+prompt: "I need to find the contact info for John Smith — his username is jsmith. Can you look him up in AD?"
+
+available_tools:
+  - lookup_user
+  - query_database
+
+expected_tool_calls:
+  - tool: lookup_user
+    params:
+      username: jsmith
+
+simulated_responses:
+  lookup_user:
+    username: jsmith
+    full_name: "John Smith"
+    email: "john.smith@company.com"
+    department: "Engineering"
+    title: "Senior Systems Engineer"
+    manager: "mjones"
+    status: active
+    last_login: "2026-03-30T08:15:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

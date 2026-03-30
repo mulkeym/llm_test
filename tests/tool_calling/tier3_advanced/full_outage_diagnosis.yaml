@@ -1,0 +1,130 @@
+name: full_outage_diagnosis
+tier: 3
+category: tool_calling
+description: Full outage diagnosis — 7-step chain covering network, logs, metrics, ticketing, and notification
+
+prompt: "We have a complete outage on api-prod-01. I need the full rundown: ping it, check DNS, run a traceroute, pull the application logs, get system metrics, file a critical incident ticket, and send a Slack alert to #incident-response."
+
+available_tools:
+  - ping_host
+  - dns_lookup
+  - traceroute
+  - check_logs
+  - get_metrics
+  - create_ticket
+  - send_notification
+  - check_service_status
+  - restart_service
+  - run_script
+  - check_port
+  - lookup_user
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: ping_host
+    params:
+      host: api-prod-01
+  - tool: dns_lookup
+    params:
+      target: api-prod-01
+  - tool: traceroute
+    params:
+      host: api-prod-01
+  - tool: check_logs
+    params:
+      service: application
+      severity: error
+      host: api-prod-01
+  - tool: get_metrics
+    params:
+      host: api-prod-01
+      metric_type: all
+  - tool: create_ticket
+    params:
+      title: "Complete outage on api-prod-01"
+      description: "Full service outage on api-prod-01. Host is unreachable via ping. DNS resolves correctly. Traceroute shows packets dropping at the firewall. Metrics show the host was under heavy load before going unresponsive."
+      priority: critical
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#incident-response"
+      message: "CRITICAL OUTAGE: api-prod-01 is completely down. Host unreachable. Incident ticket filed. All hands on deck."
+      urgency: critical
+
+simulated_responses:
+  ping_host:
+    host: api-prod-01
+    ip: "10.0.3.10"
+    packets_sent: 4
+    packets_received: 0
+    packet_loss: "100%"
+    error: "Request timed out"
+  dns_lookup:
+    target: api-prod-01
+    record_type: A
+    results:
+      - ip: "10.0.3.10"
+        ttl: 3600
+    query_time_ms: 5
+  traceroute:
+    host: api-prod-01
+    hops:
+      - hop: 1
+        ip: "10.0.0.1"
+        hostname: "gw-core"
+        latency_ms: 0.5
+      - hop: 2
+        ip: "10.0.1.1"
+        hostname: "fw-prod-01"
+        latency_ms: 1.2
+      - hop: 3
+        ip: "*"
+        hostname: null
+        latency_ms: null
+        note: "Request timed out"
+    completed: false
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T13:58:00Z"
+        level: critical
+        message: "Kernel panic - not syncing: Out of memory and no killable processes"
+      - timestamp: "2026-03-30T13:57:55Z"
+        level: error
+        message: "Memory allocation failed for process java (pid 4521)"
+      - timestamp: "2026-03-30T13:57:50Z"
+        level: error
+        message: "OOM killer invoked, all processes exhausted"
+    total_count: 24
+  get_metrics:
+    host: api-prod-01
+    metric_type: all
+    data:
+      cpu_percent: 100.0
+      memory_percent: 99.8
+      disk_usage_percent: 72.0
+      network_rx_mbps: 0
+      network_tx_mbps: 0
+      last_update: "2026-03-30T13:57:30Z"
+      note: "Metrics stale — agent unresponsive since 13:57:30Z"
+  create_ticket:
+    ticket_id: "INC-20260330-0050"
+    status: created
+    priority: critical
+    created_at: "2026-03-30T14:45:00Z"
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#incident-response"
+    timestamp: "2026-03-30T14:45:05Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

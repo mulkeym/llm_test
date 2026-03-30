@@ -1,0 +1,32 @@
+name: subnet_info
+tier: 1
+category: tool_calling
+description: Calculate subnet details for a given CIDR block
+
+prompt: "I'm planning the new VLAN for the dev team. Can you calculate the subnet details for 10.0.1.0/24 — I need to know the usable host range."
+
+available_tools:
+  - subnet_calculator
+  - dns_lookup
+  - query_database
+
+expected_tool_calls:
+  - tool: subnet_calculator
+    params:
+      cidr: "10.0.1.0/24"
+
+simulated_responses:
+  subnet_calculator:
+    cidr: "10.0.1.0/24"
+    network_address: "10.0.1.0"
+    broadcast_address: "10.0.1.255"
+    subnet_mask: "255.255.255.0"
+    first_usable: "10.0.1.1"
+    last_usable: "10.0.1.254"
+    total_hosts: 254
+    wildcard_mask: "0.0.0.255"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

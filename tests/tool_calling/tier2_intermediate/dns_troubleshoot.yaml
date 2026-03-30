@@ -1,0 +1,59 @@
+name: dns_troubleshoot
+tier: 2
+category: tool_calling
+description: DNS lookup fails — check DNS service status and logs to diagnose
+
+prompt: "Internal DNS resolution is broken — people can't resolve app.internal.company.com. Can you do a DNS lookup to confirm it's failing, then check if the DNS service is running on dns-01, and look at the logs?"
+
+available_tools:
+  - dns_lookup
+  - check_service_status
+  - check_logs
+  - restart_service
+  - ping_host
+  - manage_dns_record
+
+expected_tool_calls:
+  - tool: dns_lookup
+    params:
+      target: app.internal.company.com
+      record_type: A
+  - tool: check_service_status
+    params:
+      service_name: named
+      host: dns-01
+  - tool: check_logs
+    params:
+      service: named
+      severity: error
+      host: dns-01
+
+simulated_responses:
+  dns_lookup:
+    target: app.internal.company.com
+    record_type: A
+    results: []
+    error: "NXDOMAIN: domain not found"
+    query_time_ms: 5002
+  check_service_status:
+    service_name: named
+    host: dns-01
+    status: stopped
+    uptime: null
+    pid: null
+    last_exit_code: 1
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T13:45:00Z"
+        level: critical
+        message: "zone internal.company.com/IN: loading from master file failed: file not found"
+      - timestamp: "2026-03-30T13:45:01Z"
+        level: error
+        message: "named: exiting due to fatal error"
+    total_count: 2
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

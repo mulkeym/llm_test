@@ -1,0 +1,31 @@
+name: create_incident
+tier: 1
+category: tool_calling
+description: Create a high priority incident ticket for a database outage
+
+prompt: "We have a full database outage on the production PostgreSQL cluster. Create a high priority incident ticket right away — the primary node db-prod-01 is unresponsive."
+
+available_tools:
+  - create_ticket
+  - send_notification
+  - check_service_status
+
+expected_tool_calls:
+  - tool: create_ticket
+    params:
+      title: "Production PostgreSQL database outage - db-prod-01 unresponsive"
+      description: "Full database outage on the production PostgreSQL cluster. Primary node db-prod-01 is unresponsive."
+      priority: high
+
+simulated_responses:
+  create_ticket:
+    ticket_id: "INC-20260330-0042"
+    status: created
+    priority: high
+    created_at: "2026-03-30T14:30:00Z"
+    url: "https://tickets.company.com/INC-20260330-0042"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

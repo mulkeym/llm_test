@@ -1,0 +1,66 @@
+name: disk_space_alert
+tier: 2
+category: tool_calling
+description: Respond to disk space alert — check metrics, review logs, run cleanup
+
+prompt: "Got a disk space alert on app-01. Check the current disk metrics, look at the application logs to see if anything is filling up the disk, and run the cleanup script at /opt/scripts/disk_cleanup.sh."
+
+available_tools:
+  - get_metrics
+  - check_logs
+  - run_script
+  - check_service_status
+  - create_ticket
+  - send_notification
+
+expected_tool_calls:
+  - tool: get_metrics
+    params:
+      host: app-01
+      metric_type: disk
+  - tool: check_logs
+    params:
+      service: application
+      host: app-01
+      severity: warning
+  - tool: run_script
+    params:
+      command: "/opt/scripts/disk_cleanup.sh"
+      host: app-01
+
+simulated_responses:
+  get_metrics:
+    host: app-01
+    metric_type: disk
+    data:
+      - mount: "/"
+        total_gb: 100
+        used_gb: 94
+        free_gb: 6
+        usage_percent: 94.0
+      - mount: "/var/log"
+        total_gb: 50
+        used_gb: 48
+        free_gb: 2
+        usage_percent: 96.0
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T12:00:00Z"
+        level: warning
+        message: "Log rotation failed — /var/log/app/debug.log is 12GB"
+      - timestamp: "2026-03-30T13:00:00Z"
+        level: warning
+        message: "Disk space critically low on /var/log — 4% remaining"
+    total_count: 15
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "Cleaning /var/log/app/debug.log... removed 11.8GB\nCleaning /tmp... removed 2.1GB\nCleaning old packages... removed 1.5GB\nTotal freed: 15.4GB\nCurrent usage: / at 78%, /var/log at 72%"
+    stderr: ""
+    duration_seconds: 45
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

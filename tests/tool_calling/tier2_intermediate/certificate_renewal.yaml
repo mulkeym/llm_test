@@ -1,0 +1,71 @@
+name: certificate_renewal
+tier: 2
+category: tool_calling
+description: Check HTTPS service, check logs for cert errors, run renewal script, verify
+
+prompt: "The TLS cert on web-prod-03 is about to expire. Check the nginx status, look at the logs for certificate warnings, run the cert renewal script at /opt/scripts/renew_cert.sh, and then verify port 443 is working again."
+
+available_tools:
+  - check_service_status
+  - check_logs
+  - run_script
+  - check_port
+  - restart_service
+  - send_notification
+  - create_ticket
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: nginx
+      host: web-prod-03
+  - tool: check_logs
+    params:
+      service: nginx
+      severity: warning
+      host: web-prod-03
+  - tool: run_script
+    params:
+      command: "/opt/scripts/renew_cert.sh"
+      host: web-prod-03
+  - tool: check_port
+    params:
+      host: web-prod-03
+      port: 443
+
+simulated_responses:
+  check_service_status:
+    service_name: nginx
+    host: web-prod-03
+    status: running
+    uptime: "90d 3h 15m"
+    pid: 1523
+    memory_mb: 256
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T06:00:00Z"
+        level: warning
+        message: "SSL certificate for web-prod-03.company.com expires in 3 days"
+      - timestamp: "2026-03-30T12:00:00Z"
+        level: warning
+        message: "SSL certificate for web-prod-03.company.com expires in 3 days"
+    total_count: 8
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "Requesting new certificate for web-prod-03.company.com...\nChallenge verified\nCertificate issued\nInstalling certificate...\nReloading nginx...\nCertificate renewed successfully. New expiry: 2026-06-28"
+    stderr: ""
+    duration_seconds: 15
+  check_port:
+    host: web-prod-03
+    port: 443
+    protocol: tcp
+    status: open
+    response_time_ms: 12
+    tls_version: "TLSv1.3"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

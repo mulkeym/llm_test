@@ -1,0 +1,31 @@
+name: check_port_open
+tier: 1
+category: tool_calling
+description: Check if HTTPS port 443 is open on a web server
+
+prompt: "Check if port 443 is open on web-prod-02. Users are complaining they can't reach the HTTPS site."
+
+available_tools:
+  - check_port
+  - ping_host
+  - check_service_status
+
+expected_tool_calls:
+  - tool: check_port
+    params:
+      host: web-prod-02
+      port: 443
+
+simulated_responses:
+  check_port:
+    host: web-prod-02
+    port: 443
+    protocol: tcp
+    status: closed
+    response_time_ms: null
+    error: "Connection refused"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

@@ -1,0 +1,128 @@
+name: automated_remediation
+tier: 3
+category: tool_calling
+description: Automated remediation pipeline — check, diagnose, fix, verify, update ticket, notify
+
+prompt: "Run the full automated remediation playbook for the memcached service on cache-prod-01: check the service status, pull the logs and memory metrics to diagnose the issue, run the remediation script at /opt/scripts/memcached_fix.sh, verify the service is back up, update the existing ticket INC-20260330-0038 with the resolution, and send an all-clear notification to #ops-alerts on Slack."
+
+available_tools:
+  - check_service_status
+  - check_logs
+  - get_metrics
+  - run_script
+  - create_ticket
+  - send_notification
+  - restart_service
+  - ping_host
+  - dns_lookup
+  - traceroute
+  - check_port
+  - lookup_user
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: memcached
+      host: cache-prod-01
+  - tool: check_logs
+    params:
+      service: memcached
+      severity: error
+      host: cache-prod-01
+  - tool: get_metrics
+    params:
+      host: cache-prod-01
+      metric_type: memory
+  - tool: run_script
+    params:
+      command: "/opt/scripts/memcached_fix.sh"
+      host: cache-prod-01
+  - tool: check_service_status
+    params:
+      service_name: memcached
+      host: cache-prod-01
+  - tool: create_ticket
+    params:
+      title: "Resolution for INC-20260330-0038 — memcached on cache-prod-01"
+      description: "Automated remediation completed for memcached on cache-prod-01. Root cause: memory exhaustion causing evictions and connection drops. Remediation script cleared stale entries and restarted service with optimized memory settings. Service verified running and healthy."
+      priority: medium
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#ops-alerts"
+      message: "ALL CLEAR: memcached on cache-prod-01 has been remediated and is running normally. Ticket INC-20260330-0038 updated with resolution details."
+      urgency: normal
+
+simulated_responses:
+  check_service_status_initial:
+    service_name: memcached
+    host: cache-prod-01
+    status: degraded
+    uptime: "5d 2h 10m"
+    pid: 7654
+    memory_mb: 16384
+    cpu_percent: 5.2
+    connections: 1024
+    evictions_per_sec: 850
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T15:30:00Z"
+        level: error
+        message: "Slab class 1 memory exhausted — evicting items at high rate"
+      - timestamp: "2026-03-30T15:30:05Z"
+        level: error
+        message: "Client connection dropped: out of memory for new connections"
+      - timestamp: "2026-03-30T15:31:00Z"
+        level: warning
+        message: "Hit ratio dropped below 60% — was 99.2% 24h ago"
+    total_count: 1200
+  get_metrics:
+    host: cache-prod-01
+    metric_type: memory
+    data:
+      total_gb: 32
+      used_gb: 31.8
+      free_gb: 0.2
+      cache_items: 45000000
+      evictions_total: 2500000
+      hit_ratio: 0.58
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "=== Memcached Remediation ===\nFlushing expired items... removed 12M stale entries\nAdjusting slab allocator settings...\nRestarting memcached with -m 24576 -c 2048...\nService restarted successfully\nMemory usage: 8.2GB/24GB (34.2%)\nConnections: 0/2048"
+    stderr: ""
+    duration_seconds: 25
+  check_service_status_final:
+    service_name: memcached
+    host: cache-prod-01
+    status: running
+    uptime: "0d 0h 0m 25s"
+    pid: 8901
+    memory_mb: 8396
+    cpu_percent: 2.1
+    connections: 156
+    evictions_per_sec: 0
+  create_ticket:
+    ticket_id: "INC-20260330-0038"
+    status: updated
+    priority: medium
+    updated_at: "2026-03-30T16:45:00Z"
+    resolution: "Automated remediation applied"
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#ops-alerts"
+    timestamp: "2026-03-30T16:45:05Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

@@ -1,0 +1,107 @@
+name: network_migration
+tier: 3
+category: tool_calling
+description: Full network migration — DNS lookup old record, update DNS, update firewall, ping new host, verify port, notify team
+
+prompt: "We're migrating the mail server from 10.0.2.20 to 10.0.5.30. Look up the current DNS for mail.company.com, update the A record to the new IP, add a firewall rule allowing SMTP (port 25) from 0.0.0.0/0 to the new IP, ping the new server to verify it's up, check that port 25 is open, and notify #infra-team on Slack when the migration is done."
+
+available_tools:
+  - dns_lookup
+  - manage_dns_record
+  - update_firewall_rule
+  - ping_host
+  - check_port
+  - send_notification
+  - check_service_status
+  - restart_service
+  - run_script
+  - check_logs
+  - get_metrics
+  - create_ticket
+  - lookup_user
+  - query_database
+  - whois_lookup
+  - subnet_calculator
+  - traceroute
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: dns_lookup
+    params:
+      target: mail.company.com
+      record_type: A
+  - tool: manage_dns_record
+    params:
+      action: update
+      zone: company.com
+      name: mail
+      record_type: A
+      value: "10.0.5.30"
+  - tool: update_firewall_rule
+    params:
+      action: add
+      source: "0.0.0.0/0"
+      destination: "10.0.5.30"
+      port: 25
+      protocol: tcp
+  - tool: ping_host
+    params:
+      host: "10.0.5.30"
+  - tool: check_port
+    params:
+      host: "10.0.5.30"
+      port: 25
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#infra-team"
+      message: "Mail server migration complete. DNS for mail.company.com updated to 10.0.5.30. Firewall rule added for SMTP. New server is online and port 25 is open."
+
+simulated_responses:
+  dns_lookup:
+    target: mail.company.com
+    record_type: A
+    results:
+      - ip: "10.0.2.20"
+        ttl: 3600
+  manage_dns_record:
+    status: success
+    action: update
+    zone: company.com
+    name: mail
+    record_type: A
+    old_value: "10.0.2.20"
+    new_value: "10.0.5.30"
+    ttl: 3600
+  update_firewall_rule:
+    status: success
+    rule_id: "FW-20260330-0115"
+    action: add
+    source: "0.0.0.0/0"
+    destination: "10.0.5.30"
+    port: 25
+    protocol: tcp
+  ping_host:
+    host: "10.0.5.30"
+    packets_sent: 4
+    packets_received: 4
+    packet_loss: "0%"
+    avg_latency_ms: 1.5
+  check_port:
+    host: "10.0.5.30"
+    port: 25
+    protocol: tcp
+    status: open
+    response_time_ms: 8
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#infra-team"
+    timestamp: "2026-03-30T15:30:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

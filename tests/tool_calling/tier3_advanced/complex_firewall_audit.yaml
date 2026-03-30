@@ -1,0 +1,115 @@
+name: complex_firewall_audit
+tier: 3
+category: tool_calling
+description: Audit firewall rules — check multiple ports, query rule database, update rules, create audit ticket
+
+prompt: "We need to audit the firewall for the PCI segment. Check ports 443, 3306, and 22 on pci-db-01. Then query the firewall_rules database to see what rules exist for that host. Close port 22 if it's open (it shouldn't be in PCI), and create a ticket documenting the audit findings."
+
+available_tools:
+  - check_port
+  - query_database
+  - update_firewall_rule
+  - create_ticket
+  - ping_host
+  - dns_lookup
+  - traceroute
+  - check_logs
+  - get_metrics
+  - check_service_status
+  - restart_service
+  - run_script
+  - send_notification
+  - lookup_user
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: check_port
+    params:
+      host: pci-db-01
+      port: 443
+  - tool: check_port
+    params:
+      host: pci-db-01
+      port: 3306
+  - tool: check_port
+    params:
+      host: pci-db-01
+      port: 22
+  - tool: query_database
+    params:
+      query: "SELECT * FROM firewall_rules WHERE destination = 'pci-db-01' OR destination LIKE '%10.0.50%'"
+      database: firewall_rules
+  - tool: update_firewall_rule
+    params:
+      action: remove
+      source: "0.0.0.0/0"
+      destination: pci-db-01
+      port: 22
+      protocol: tcp
+  - tool: create_ticket
+    params:
+      title: "PCI firewall audit — pci-db-01"
+      description: "Firewall audit for PCI segment host pci-db-01. Ports 443 (open, expected) and 3306 (open, expected) verified. Port 22 was found open in violation of PCI policy — rule removed. Audit complete."
+      priority: high
+
+simulated_responses:
+  check_port_443:
+    host: pci-db-01
+    port: 443
+    status: open
+    response_time_ms: 5
+  check_port_3306:
+    host: pci-db-01
+    port: 3306
+    status: open
+    response_time_ms: 3
+  check_port_22:
+    host: pci-db-01
+    port: 22
+    status: open
+    response_time_ms: 2
+  query_database:
+    rows:
+      - rule_id: "FW-1001"
+        source: "10.0.10.0/24"
+        destination: "pci-db-01"
+        port: 443
+        protocol: tcp
+        action: allow
+        created: "2025-11-01"
+      - rule_id: "FW-1002"
+        source: "10.0.10.0/24"
+        destination: "pci-db-01"
+        port: 3306
+        protocol: tcp
+        action: allow
+        created: "2025-11-01"
+      - rule_id: "FW-1003"
+        source: "0.0.0.0/0"
+        destination: "pci-db-01"
+        port: 22
+        protocol: tcp
+        action: allow
+        created: "2026-01-15"
+        note: "Added for emergency maintenance — should have been removed"
+    row_count: 3
+  update_firewall_rule:
+    status: success
+    rule_id: "FW-1003"
+    action: remove
+    message: "Rule FW-1003 removed — port 22 access to pci-db-01 blocked"
+  create_ticket:
+    ticket_id: "AUDIT-20260330-0003"
+    status: created
+    priority: high
+    created_at: "2026-03-30T16:00:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

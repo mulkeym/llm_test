@@ -1,0 +1,43 @@
+name: check_arp
+tier: 1
+category: tool_calling
+description: Get ARP table from the core switch
+
+prompt: "Pull the ARP table from switch-core-01. We need to track down a rogue device on the network."
+
+available_tools:
+  - get_arp_table
+  - ping_host
+  - check_port
+
+expected_tool_calls:
+  - tool: get_arp_table
+    params:
+      host: switch-core-01
+
+simulated_responses:
+  get_arp_table:
+    host: switch-core-01
+    entries:
+      - ip: "10.0.1.15"
+        mac: "aa:bb:cc:dd:ee:01"
+        interface: "eth0"
+        state: "REACHABLE"
+      - ip: "10.0.1.22"
+        mac: "aa:bb:cc:dd:ee:02"
+        interface: "eth0"
+        state: "REACHABLE"
+      - ip: "10.0.1.99"
+        mac: "de:ad:be:ef:00:01"
+        interface: "eth0"
+        state: "REACHABLE"
+      - ip: "10.0.1.100"
+        mac: "de:ad:be:ef:00:02"
+        interface: "eth1"
+        state: "STALE"
+    total_entries: 4
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

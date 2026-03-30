@@ -1,0 +1,33 @@
+name: whois_domain
+tier: 1
+category: tool_calling
+description: Get WHOIS information for a suspicious domain
+
+prompt: "Our email filter flagged phishing attempts from totally-legit-bank.xyz. Run a WHOIS on that domain so we can report it."
+
+available_tools:
+  - whois_lookup
+  - dns_lookup
+
+expected_tool_calls:
+  - tool: whois_lookup
+    params:
+      target: totally-legit-bank.xyz
+
+simulated_responses:
+  whois_lookup:
+    domain: totally-legit-bank.xyz
+    registrar: "Shady Registrar LLC"
+    created: "2026-03-28"
+    expires: "2027-03-28"
+    registrant_country: "RU"
+    nameservers:
+      - "ns1.shadyhosting.net"
+      - "ns2.shadyhosting.net"
+    status: "clientTransferProhibited"
+    dnssec: unsigned
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

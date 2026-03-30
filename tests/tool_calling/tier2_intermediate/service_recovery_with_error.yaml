@@ -1,0 +1,58 @@
+name: service_recovery_with_error
+tier: 2
+category: tool_calling
+description: Service restart fails, check logs for reason, then force restart
+
+prompt: "Redis on cache-01 is unresponsive. Try restarting it. If the restart fails, check the logs to see why, and then do a force restart."
+
+available_tools:
+  - restart_service
+  - check_logs
+  - check_service_status
+  - get_metrics
+  - create_ticket
+  - send_notification
+
+expected_tool_calls:
+  - tool: restart_service
+    params:
+      service_name: redis
+      host: cache-01
+  - tool: check_logs
+    params:
+      service: redis
+      severity: error
+      host: cache-01
+  - tool: restart_service
+    params:
+      service_name: redis
+      host: cache-01
+      force: true
+
+simulated_responses:
+  restart_service:
+    status: error
+    message: "Failed to restart redis on cache-01: service has active connections and cannot be gracefully stopped"
+    error_code: "SERVICE_BUSY"
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T14:20:00Z"
+        level: error
+        message: "Can't save in background: fork() failed — Cannot allocate memory"
+      - timestamp: "2026-03-30T14:20:05Z"
+        level: error
+        message: "MISCONF Redis is configured to save RDB snapshots, but is unable to persist on disk"
+      - timestamp: "2026-03-30T14:22:00Z"
+        level: warning
+        message: "1024 clients connected, 0 slaves connected"
+    total_count: 30
+  restart_service_force:
+    status: success
+    message: "Service redis force-restarted on cache-01. 1024 client connections terminated."
+    timestamp: "2026-03-30T14:28:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

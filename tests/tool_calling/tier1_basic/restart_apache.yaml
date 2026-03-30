@@ -1,0 +1,28 @@
+name: restart_apache
+tier: 1
+category: tool_calling
+description: Restart the Apache web server on a production host
+
+prompt: "Apache is throwing 503 errors on web-prod-01. Can you restart the apache2 service on that box?"
+
+available_tools:
+  - restart_service
+  - check_service_status
+  - check_logs
+
+expected_tool_calls:
+  - tool: restart_service
+    params:
+      service_name: apache2
+      host: web-prod-01
+
+simulated_responses:
+  restart_service:
+    status: success
+    message: "Service apache2 restarted successfully on web-prod-01"
+    timestamp: "2026-03-30T14:22:10Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

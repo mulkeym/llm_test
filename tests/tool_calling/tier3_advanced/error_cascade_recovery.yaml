@@ -1,0 +1,103 @@
+name: error_cascade_recovery
+tier: 3
+category: tool_calling
+description: Restart fails, diagnose via logs, run diagnostic script, force restart, verify, notify
+
+prompt: "The order processing service on order-svc-01 is hung. Try restarting it. If it fails, check the logs, run the diagnostic script at /opt/scripts/diagnose_java.sh to figure out what's wrong, then force restart it. After that, verify it's running and send a Slack notification to #platform-team."
+
+available_tools:
+  - restart_service
+  - check_logs
+  - run_script
+  - check_service_status
+  - send_notification
+  - get_metrics
+  - create_ticket
+  - ping_host
+  - dns_lookup
+  - traceroute
+  - check_port
+  - lookup_user
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: restart_service
+    params:
+      service_name: order-processing
+      host: order-svc-01
+  - tool: check_logs
+    params:
+      service: order-processing
+      severity: error
+      host: order-svc-01
+  - tool: run_script
+    params:
+      command: "/opt/scripts/diagnose_java.sh"
+      host: order-svc-01
+  - tool: restart_service
+    params:
+      service_name: order-processing
+      host: order-svc-01
+      force: true
+  - tool: check_service_status
+    params:
+      service_name: order-processing
+      host: order-svc-01
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#platform-team"
+      message: "order-processing service on order-svc-01 has been recovered. Initial restart failed due to thread deadlock. Forced restart succeeded. Service is now running normally."
+
+simulated_responses:
+  restart_service:
+    status: error
+    message: "Failed to restart order-processing: service not responding to SIGTERM, process appears hung"
+    error_code: "SERVICE_HUNG"
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T14:10:00Z"
+        level: error
+        message: "java.lang.OutOfMemoryError: GC overhead limit exceeded"
+      - timestamp: "2026-03-30T14:10:05Z"
+        level: error
+        message: "Thread pool exhausted: 200/200 threads in BLOCKED state"
+      - timestamp: "2026-03-30T14:12:00Z"
+        level: critical
+        message: "Deadlock detected between OrderProcessor and InventoryManager threads"
+    total_count: 450
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "=== Java Process Diagnostics ===\nPID: 12543\nHeap: 7.8GB/8GB (97.5%)\nGC Time: 95% of CPU time\nThread dump:\n  200 threads in BLOCKED state\n  Deadlock detected: OrderProcessor <-> InventoryManager\nRecommendation: Force kill and restart with increased heap size"
+    stderr: ""
+    duration_seconds: 8
+  restart_service_force:
+    status: success
+    message: "Service order-processing force-restarted on order-svc-01. Process 12543 killed with SIGKILL."
+    timestamp: "2026-03-30T14:55:00Z"
+  check_service_status:
+    service_name: order-processing
+    host: order-svc-01
+    status: running
+    uptime: "0d 0h 0m 30s"
+    pid: 15678
+    memory_mb: 2048
+    cpu_percent: 15.2
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#platform-team"
+    timestamp: "2026-03-30T14:55:30Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

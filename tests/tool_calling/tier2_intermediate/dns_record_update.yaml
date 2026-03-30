@@ -1,0 +1,51 @@
+name: dns_record_update
+tier: 2
+category: tool_calling
+description: Look up current DNS record, then update it to a new IP
+
+prompt: "We migrated web-prod-01 to a new server. Look up the current A record for web-prod-01.company.com, then update the DNS record to point to the new IP 10.0.5.50."
+
+available_tools:
+  - dns_lookup
+  - manage_dns_record
+  - ping_host
+  - check_port
+  - send_notification
+  - check_service_status
+
+expected_tool_calls:
+  - tool: dns_lookup
+    params:
+      target: web-prod-01.company.com
+      record_type: A
+  - tool: manage_dns_record
+    params:
+      action: update
+      zone: company.com
+      name: web-prod-01
+      record_type: A
+      value: "10.0.5.50"
+
+simulated_responses:
+  dns_lookup:
+    target: web-prod-01.company.com
+    record_type: A
+    results:
+      - ip: "10.0.1.10"
+        ttl: 3600
+    query_time_ms: 8
+  manage_dns_record:
+    status: success
+    action: update
+    zone: company.com
+    name: web-prod-01
+    record_type: A
+    old_value: "10.0.1.10"
+    new_value: "10.0.5.50"
+    ttl: 3600
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

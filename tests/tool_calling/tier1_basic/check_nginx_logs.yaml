@@ -1,0 +1,37 @@
+name: check_nginx_logs
+tier: 1
+category: tool_calling
+description: Check nginx error logs from the last hour
+
+prompt: "We're getting reports of intermittent 502 errors. Pull the nginx error logs from the last hour so I can take a look."
+
+available_tools:
+  - check_logs
+  - restart_service
+  - check_service_status
+
+expected_tool_calls:
+  - tool: check_logs
+    params:
+      service: nginx
+      severity: error
+      time_range: "1h"
+
+simulated_responses:
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T14:15:22Z"
+        level: error
+        message: "upstream timed out (110: Connection timed out) while reading response header from upstream"
+      - timestamp: "2026-03-30T14:18:45Z"
+        level: error
+        message: "connect() failed (111: Connection refused) while connecting to upstream"
+      - timestamp: "2026-03-30T14:20:01Z"
+        level: error
+        message: "upstream prematurely closed connection while reading response header from upstream"
+    total_count: 47
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

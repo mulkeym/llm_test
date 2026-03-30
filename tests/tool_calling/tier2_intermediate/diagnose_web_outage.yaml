@@ -1,0 +1,63 @@
+name: diagnose_web_outage
+tier: 2
+category: tool_calling
+description: Three-step diagnosis — check status, check logs, then restart the web service
+
+prompt: "Users are reporting the website is down. Can you check what's going on with nginx on web-prod-01, look at the logs, and restart it if it's not healthy?"
+
+available_tools:
+  - check_service_status
+  - check_logs
+  - restart_service
+  - ping_host
+  - get_metrics
+  - create_ticket
+  - send_notification
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: nginx
+      host: web-prod-01
+  - tool: check_logs
+    params:
+      service: nginx
+      severity: error
+      host: web-prod-01
+      time_range: "1h"
+  - tool: restart_service
+    params:
+      service_name: nginx
+      host: web-prod-01
+
+simulated_responses:
+  check_service_status:
+    service_name: nginx
+    host: web-prod-01
+    status: degraded
+    uptime: "0d 0h 12m"
+    pid: 4521
+    memory_mb: 512
+    cpu_percent: 98.2
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T14:10:00Z"
+        level: error
+        message: "worker process 4522 exited on signal 11"
+      - timestamp: "2026-03-30T14:10:05Z"
+        level: error
+        message: "worker process 4523 exited on signal 11"
+      - timestamp: "2026-03-30T14:12:00Z"
+        level: critical
+        message: "too many worker processes crashed, entering degraded mode"
+    total_count: 15
+  restart_service:
+    status: success
+    message: "Service nginx restarted successfully on web-prod-01"
+    timestamp: "2026-03-30T14:25:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

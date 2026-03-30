@@ -1,0 +1,70 @@
+name: parallel_health_check
+tier: 3
+category: tool_calling
+description: Simultaneous health checks — ping, check port, and check service status in parallel on a single host
+
+prompt: "Do a full health check on web-prod-01 — ping it, check if port 443 is open, and verify the nginx service is running. Run all three checks at the same time to save time."
+
+available_tools:
+  - ping_host
+  - check_port
+  - check_service_status
+  - dns_lookup
+  - traceroute
+  - get_metrics
+  - check_logs
+  - restart_service
+  - run_script
+  - create_ticket
+  - send_notification
+  - lookup_user
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: ping_host
+    params:
+      host: web-prod-01
+  - tool: check_port
+    params:
+      host: web-prod-01
+      port: 443
+  - tool: check_service_status
+    params:
+      service_name: nginx
+      host: web-prod-01
+
+simulated_responses:
+  ping_host:
+    host: web-prod-01
+    ip: "10.0.1.10"
+    packets_sent: 4
+    packets_received: 4
+    packet_loss: "0%"
+    avg_latency_ms: 0.8
+  check_port:
+    host: web-prod-01
+    port: 443
+    protocol: tcp
+    status: open
+    response_time_ms: 5
+    tls_version: "TLSv1.3"
+  check_service_status:
+    service_name: nginx
+    host: web-prod-01
+    status: running
+    uptime: "45d 8h 20m"
+    pid: 1234
+    memory_mb: 256
+    cpu_percent: 3.2
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

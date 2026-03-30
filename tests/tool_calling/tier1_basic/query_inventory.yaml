@@ -1,0 +1,38 @@
+name: query_inventory
+tier: 1
+category: tool_calling
+description: Query the asset database for server information
+
+prompt: "Can you query our CMDB to get all the details we have on web-prod-01? I need its specs for the capacity planning doc."
+
+available_tools:
+  - query_database
+  - lookup_user
+  - check_service_status
+
+expected_tool_calls:
+  - tool: query_database
+    params:
+      query: "SELECT * FROM assets WHERE hostname = 'web-prod-01'"
+      database: cmdb
+
+simulated_responses:
+  query_database:
+    rows:
+      - hostname: web-prod-01
+        ip_address: "10.0.1.10"
+        os: "Ubuntu 22.04 LTS"
+        cpu_cores: 16
+        ram_gb: 64
+        disk_gb: 500
+        datacenter: "us-east-1"
+        rack: "R12-U24"
+        owner: "web-team"
+        purchase_date: "2024-06-15"
+        warranty_expires: "2027-06-15"
+    row_count: 1
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

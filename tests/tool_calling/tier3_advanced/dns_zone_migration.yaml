@@ -1,0 +1,149 @@
+name: dns_zone_migration
+tier: 3
+category: tool_calling
+description: DNS zone migration — look up multiple records, update each, verify, notify
+
+prompt: "We're migrating the staging.company.com zone to new infrastructure. Look up the current A records for app.staging.company.com, api.staging.company.com, and db.staging.company.com. Update each to the new IPs: app to 10.5.1.10, api to 10.5.1.20, db to 10.5.1.30. After updating, do a DNS lookup on each to verify, and notify #devops on Slack."
+
+available_tools:
+  - dns_lookup
+  - manage_dns_record
+  - send_notification
+  - ping_host
+  - check_port
+  - check_service_status
+  - restart_service
+  - run_script
+  - check_logs
+  - get_metrics
+  - create_ticket
+  - lookup_user
+  - query_database
+  - update_firewall_rule
+  - whois_lookup
+  - subnet_calculator
+  - traceroute
+  - get_arp_table
+
+expected_tool_calls:
+  - tool: dns_lookup
+    params:
+      target: app.staging.company.com
+      record_type: A
+  - tool: dns_lookup
+    params:
+      target: api.staging.company.com
+      record_type: A
+  - tool: dns_lookup
+    params:
+      target: db.staging.company.com
+      record_type: A
+  - tool: manage_dns_record
+    params:
+      action: update
+      zone: staging.company.com
+      name: app
+      record_type: A
+      value: "10.5.1.10"
+  - tool: manage_dns_record
+    params:
+      action: update
+      zone: staging.company.com
+      name: api
+      record_type: A
+      value: "10.5.1.20"
+  - tool: manage_dns_record
+    params:
+      action: update
+      zone: staging.company.com
+      name: db
+      record_type: A
+      value: "10.5.1.30"
+  - tool: dns_lookup
+    params:
+      target: app.staging.company.com
+      record_type: A
+  - tool: dns_lookup
+    params:
+      target: api.staging.company.com
+      record_type: A
+  - tool: dns_lookup
+    params:
+      target: db.staging.company.com
+      record_type: A
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#devops"
+      message: "DNS zone migration for staging.company.com complete. Updated records: app (10.5.1.10), api (10.5.1.20), db (10.5.1.30). All records verified."
+
+simulated_responses:
+  dns_lookup_app_old:
+    target: app.staging.company.com
+    record_type: A
+    results:
+      - ip: "10.4.1.10"
+        ttl: 3600
+  dns_lookup_api_old:
+    target: api.staging.company.com
+    record_type: A
+    results:
+      - ip: "10.4.1.20"
+        ttl: 3600
+  dns_lookup_db_old:
+    target: db.staging.company.com
+    record_type: A
+    results:
+      - ip: "10.4.1.30"
+        ttl: 3600
+  manage_dns_record_app:
+    status: success
+    action: update
+    zone: staging.company.com
+    name: app
+    old_value: "10.4.1.10"
+    new_value: "10.5.1.10"
+  manage_dns_record_api:
+    status: success
+    action: update
+    zone: staging.company.com
+    name: api
+    old_value: "10.4.1.20"
+    new_value: "10.5.1.20"
+  manage_dns_record_db:
+    status: success
+    action: update
+    zone: staging.company.com
+    name: db
+    old_value: "10.4.1.30"
+    new_value: "10.5.1.30"
+  dns_lookup_app_new:
+    target: app.staging.company.com
+    record_type: A
+    results:
+      - ip: "10.5.1.10"
+        ttl: 3600
+  dns_lookup_api_new:
+    target: api.staging.company.com
+    record_type: A
+    results:
+      - ip: "10.5.1.20"
+        ttl: 3600
+  dns_lookup_db_new:
+    target: db.staging.company.com
+    record_type: A
+    results:
+      - ip: "10.5.1.30"
+        ttl: 3600
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#devops"
+    timestamp: "2026-03-30T16:15:00Z"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  parallel_calls: 2
+  no_hallucinated_tools: 2

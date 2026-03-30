@@ -1,0 +1,45 @@
+name: onboard_user_access
+tier: 2
+category: tool_calling
+description: Look up a new hire, then run a script to provision their access
+
+prompt: "New hire Sarah Chen (username schen) started today. Look her up in AD to confirm her account is active, then run the onboarding script at /opt/scripts/provision_access.sh on auth-01 to set up her permissions."
+
+available_tools:
+  - lookup_user
+  - run_script
+  - create_ticket
+  - send_notification
+  - query_database
+
+expected_tool_calls:
+  - tool: lookup_user
+    params:
+      username: schen
+  - tool: run_script
+    params:
+      command: "/opt/scripts/provision_access.sh schen"
+      host: auth-01
+
+simulated_responses:
+  lookup_user:
+    username: schen
+    full_name: "Sarah Chen"
+    email: "sarah.chen@company.com"
+    department: "Engineering"
+    title: "Software Engineer"
+    manager: "jdoe"
+    status: active
+    created: "2026-03-29"
+  run_script:
+    status: success
+    exit_code: 0
+    stdout: "Provisioning access for schen...\nAdded to group: engineering\nAdded to group: vpn-users\nCreated home directory on dev-01\nProvisioned Jira/Confluence access\nDone."
+    stderr: ""
+    duration_seconds: 12
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

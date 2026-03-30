@@ -1,0 +1,32 @@
+name: service_status
+tier: 1
+category: tool_calling
+description: Check if PostgreSQL is running on the database server
+
+prompt: "Is PostgreSQL running on db-prod-01? We're seeing connection timeouts from the app tier."
+
+available_tools:
+  - check_service_status
+  - restart_service
+  - check_logs
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: postgresql
+      host: db-prod-01
+
+simulated_responses:
+  check_service_status:
+    service_name: postgresql
+    host: db-prod-01
+    status: running
+    uptime: "45d 12h 33m"
+    pid: 1842
+    memory_mb: 2048
+    cpu_percent: 78.5
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

@@ -1,0 +1,32 @@
+name: send_slack_alert
+tier: 1
+category: tool_calling
+description: Send a critical Slack alert about disk space to the ops channel
+
+prompt: "Send a critical alert to the #ops-alerts Slack channel. storage-01 is at 93% disk usage and needs immediate attention."
+
+available_tools:
+  - send_notification
+  - create_ticket
+  - get_metrics
+
+expected_tool_calls:
+  - tool: send_notification
+    params:
+      channel: slack
+      recipient: "#ops-alerts"
+      message: "CRITICAL: storage-01 is at 93% disk usage and needs immediate attention."
+      urgency: critical
+
+simulated_responses:
+  send_notification:
+    status: sent
+    channel: slack
+    recipient: "#ops-alerts"
+    timestamp: "2026-03-30T14:40:00Z"
+    message_id: "msg-20260330-1440"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2

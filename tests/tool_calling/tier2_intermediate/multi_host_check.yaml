@@ -1,0 +1,47 @@
+name: multi_host_check
+tier: 2
+category: tool_calling
+description: Check service status on two different hosts for comparison
+
+prompt: "Can you check if the Redis service is running on both cache-01 and cache-02? We need to make sure both nodes in the cluster are healthy."
+
+available_tools:
+  - check_service_status
+  - ping_host
+  - get_metrics
+  - check_logs
+  - restart_service
+
+expected_tool_calls:
+  - tool: check_service_status
+    params:
+      service_name: redis
+      host: cache-01
+  - tool: check_service_status
+    params:
+      service_name: redis
+      host: cache-02
+
+simulated_responses:
+  check_service_status:
+    service_name: redis
+    host: cache-01
+    status: running
+    uptime: "30d 12h 5m"
+    pid: 3421
+    memory_mb: 8192
+    role: master
+  check_service_status_2:
+    service_name: redis
+    host: cache-02
+    status: running
+    uptime: "30d 12h 4m"
+    pid: 2876
+    memory_mb: 8190
+    role: replica
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  correct_ordering: 3
+  no_hallucinated_tools: 2

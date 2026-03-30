@@ -1,0 +1,32 @@
+name: dns_resolve
+tier: 1
+category: tool_calling
+description: Resolve the IP address of a mail server hostname
+
+prompt: "What IP does mail.example.com resolve to? I need to verify the DNS record is correct."
+
+available_tools:
+  - dns_lookup
+  - ping_host
+  - check_port
+
+expected_tool_calls:
+  - tool: dns_lookup
+    params:
+      target: mail.example.com
+      record_type: A
+
+simulated_responses:
+  dns_lookup:
+    target: mail.example.com
+    record_type: A
+    results:
+      - ip: "203.0.113.25"
+        ttl: 3600
+    query_time_ms: 12
+    server: "10.0.0.2"
+
+scoring:
+  correct_tool: 5
+  correct_params: 3
+  no_hallucinated_tools: 2
