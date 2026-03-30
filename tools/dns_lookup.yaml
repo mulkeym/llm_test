@@ -1,0 +1,14 @@
+name: dns_lookup
+description: Resolve a hostname to IP address or perform reverse DNS lookup
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: Hostname or IP address to look up
+    record_type:
+      type: string
+      enum: [A, AAAA, MX, CNAME, PTR, TXT, NS, SOA]
+      description: DNS record type to query
+      default: A
+  required: [target]

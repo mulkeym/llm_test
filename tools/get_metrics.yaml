@@ -1,0 +1,17 @@
+name: get_metrics
+description: Pull system metrics such as CPU, memory, disk, or network usage
+parameters:
+  type: object
+  properties:
+    host:
+      type: string
+      description: Target hostname or IP address
+    metric_type:
+      type: string
+      enum: [cpu, memory, disk, network, all]
+      description: Type of metric to retrieve
+    time_range:
+      type: string
+      description: "Time range for metrics (e.g., '1h', '24h', '7d')"
+      default: "1h"
+  required: [host, metric_type]

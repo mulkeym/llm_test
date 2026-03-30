@@ -1,0 +1,16 @@
+name: query_database
+description: Run a SQL query against a named database and return results
+parameters:
+  type: object
+  properties:
+    query:
+      type: string
+      description: The SQL query to execute
+    database:
+      type: string
+      description: Name of the target database
+    timeout:
+      type: integer
+      description: Query timeout in seconds
+      default: 30
+  required: [query, database]

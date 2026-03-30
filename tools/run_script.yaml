@@ -1,0 +1,16 @@
+name: run_script
+description: Execute a shell command or script on a target host
+parameters:
+  type: object
+  properties:
+    command:
+      type: string
+      description: The shell command to execute
+    host:
+      type: string
+      description: Target hostname or IP address
+    sudo:
+      type: boolean
+      description: Whether to run with sudo privileges
+      default: false
+  required: [command, host]

@@ -1,0 +1,16 @@
+name: restart_service
+description: Restart a system service on the specified host
+parameters:
+  type: object
+  properties:
+    service_name:
+      type: string
+      description: Name of the service to restart
+    host:
+      type: string
+      description: Target hostname or IP address
+    force:
+      type: boolean
+      description: Force restart even if service has active connections
+      default: false
+  required: [service_name, host]

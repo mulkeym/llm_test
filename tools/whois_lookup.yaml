@@ -1,0 +1,9 @@
+name: whois_lookup
+description: Get WHOIS registration information for a domain name or IP address
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: Domain name or IP address to look up
+  required: [target]

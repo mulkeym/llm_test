@@ -1,0 +1,21 @@
+name: send_notification
+description: Send an alert or notification via email, Slack, or Microsoft Teams
+parameters:
+  type: object
+  properties:
+    channel:
+      type: string
+      enum: [email, slack, teams]
+      description: Notification channel to use
+    recipient:
+      type: string
+      description: Recipient address, channel name, or username
+    message:
+      type: string
+      description: Notification message content
+    urgency:
+      type: string
+      enum: [low, normal, high, critical]
+      description: Urgency level of the notification
+      default: normal
+  required: [channel, recipient, message]

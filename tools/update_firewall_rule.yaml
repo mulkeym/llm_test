@@ -1,0 +1,24 @@
+name: update_firewall_rule
+description: Add, modify, or remove a firewall rule
+parameters:
+  type: object
+  properties:
+    action:
+      type: string
+      enum: [add, modify, remove]
+      description: Action to perform on the firewall rule
+    source:
+      type: string
+      description: Source IP address or CIDR range
+    destination:
+      type: string
+      description: Destination IP address or CIDR range
+    port:
+      type: integer
+      description: Port number
+    protocol:
+      type: string
+      enum: [tcp, udp, icmp, any]
+      description: Network protocol
+      default: tcp
+  required: [action, source, destination, port]

@@ -1,0 +1,19 @@
+name: create_ticket
+description: Create a helpdesk or incident ticket in the ticketing system
+parameters:
+  type: object
+  properties:
+    title:
+      type: string
+      description: Brief title describing the issue
+    description:
+      type: string
+      description: Detailed description of the issue
+    priority:
+      type: string
+      enum: [low, medium, high, critical]
+      description: Ticket priority level
+    assignee:
+      type: string
+      description: Username to assign the ticket to
+  required: [title, description, priority]

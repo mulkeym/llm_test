@@ -1,0 +1,19 @@
+name: check_logs
+description: Search system or application logs by service, severity level, and time range
+parameters:
+  type: object
+  properties:
+    service:
+      type: string
+      description: Name of the service to check logs for
+    severity:
+      type: string
+      enum: [debug, info, warning, error, critical]
+      description: Minimum severity level to filter
+    time_range:
+      type: string
+      description: "Time range to search (e.g., '1h', '24h', '7d')"
+    host:
+      type: string
+      description: Target host to check logs on
+  required: [service]

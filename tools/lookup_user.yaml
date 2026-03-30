@@ -1,0 +1,14 @@
+name: lookup_user
+description: Look up a user in Active Directory and return their profile information
+parameters:
+  type: object
+  properties:
+    username:
+      type: string
+      description: The username or email to look up
+    fields:
+      type: array
+      items:
+        type: string
+      description: "Specific fields to return (e.g., ['email', 'department', 'manager'])"
+  required: [username]

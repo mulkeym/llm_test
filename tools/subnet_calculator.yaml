@@ -1,0 +1,17 @@
+name: subnet_calculator
+description: Calculate network address, broadcast address, and usable host range from CIDR notation
+parameters:
+  type: object
+  properties:
+    cidr:
+      type: string
+      description: "IP address in CIDR notation (e.g., '192.168.1.0/24')"
+    operation:
+      type: string
+      enum: [info, contains, split]
+      description: "Operation: info (show details), contains (check if IP is in subnet), split (divide into smaller subnets)"
+      default: info
+    ip:
+      type: string
+      description: IP address to check (used with 'contains' operation)
+  required: [cidr]

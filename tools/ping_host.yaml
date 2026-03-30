@@ -1,0 +1,17 @@
+name: ping_host
+description: Ping a host and return latency and packet loss statistics
+parameters:
+  type: object
+  properties:
+    host:
+      type: string
+      description: Target hostname or IP address to ping
+    count:
+      type: integer
+      description: Number of ping packets to send
+      default: 4
+    timeout:
+      type: integer
+      description: Timeout in seconds for each ping
+      default: 5
+  required: [host]

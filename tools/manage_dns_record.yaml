@@ -1,0 +1,27 @@
+name: manage_dns_record
+description: Create, update, or delete a DNS record in a managed DNS zone
+parameters:
+  type: object
+  properties:
+    action:
+      type: string
+      enum: [create, update, delete]
+      description: Action to perform on the DNS record
+    zone:
+      type: string
+      description: DNS zone name (e.g., 'example.com')
+    name:
+      type: string
+      description: Record name (e.g., 'web-prod-01')
+    record_type:
+      type: string
+      enum: [A, AAAA, CNAME, MX, TXT, NS]
+      description: DNS record type
+    value:
+      type: string
+      description: Record value (e.g., IP address, hostname)
+    ttl:
+      type: integer
+      description: Time to live in seconds
+      default: 3600
+  required: [action, zone, name, record_type]

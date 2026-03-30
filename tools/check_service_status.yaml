@@ -1,0 +1,12 @@
+name: check_service_status
+description: Get the current health and status of a system service
+parameters:
+  type: object
+  properties:
+    service_name:
+      type: string
+      description: Name of the service to check
+    host:
+      type: string
+      description: Target hostname or IP address
+  required: [service_name, host]

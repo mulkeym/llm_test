@@ -1,0 +1,15 @@
+name: get_arp_table
+description: Get ARP table entries showing MAC-to-IP address mappings
+parameters:
+  type: object
+  properties:
+    host:
+      type: string
+      description: Host to query ARP table from
+    interface:
+      type: string
+      description: Network interface to filter by
+    filter_ip:
+      type: string
+      description: Filter results by specific IP address
+  required: [host]
