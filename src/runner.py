@@ -20,7 +20,11 @@ class BenchmarkRunner:
     def __init__(self, config_path: str = "config.yaml",
                  base_url: Optional[str] = None,
                  api_key: Optional[str] = None,
-                 timeout: Optional[int] = None):
+                 timeout: Optional[int] = None,
+                 judge_provider: Optional[str] = None,
+                 judge_model: Optional[str] = None,
+                 judge_base_url: Optional[str] = None,
+                 judge_api_key: Optional[str] = None):
         load_dotenv()
         with open(config_path) as f:
             self.config = yaml.safe_load(f)
@@ -32,9 +36,20 @@ class BenchmarkRunner:
             timeout=timeout or api_cfg.get("timeout", 60),
             max_retries=api_cfg.get("max_retries", 2),
         )
+
+        j_provider = judge_provider or self.config["judge"].get("provider", "anthropic")
+        j_model = judge_model or self.config["judge"].get("model", "claude-sonnet-4-6")
+        j_base_url = judge_base_url or self.config["judge"].get("base_url")
+        if j_provider == "anthropic":
+            j_api_key = judge_api_key or os.getenv("ANTHROPIC_API_KEY")
+        else:
+            j_api_key = judge_api_key or self.config["judge"].get("api_key", "")
+
         self.judge = Judge(
-            api_key=os.getenv("ANTHROPIC_API_KEY"),
-            model=self.config["judge"].get("model", "claude-sonnet-4-6"),
+            provider=j_provider,
+            api_key=j_api_key,
+            model=j_model,
+            base_url=j_base_url,
         )
         self.db = Database()
         self.scorer = ToolCallScorer()

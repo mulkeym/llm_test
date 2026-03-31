@@ -448,6 +448,29 @@ elif page == "Run Benchmark":
             run_api_key = st.text_input("API Key (optional)", value="", type="password",
                                         help="If your server requires an API key")
 
+        st.markdown("---")
+        st.markdown("**Judge Configuration**")
+        judge_provider = st.selectbox("Judge Provider", ["anthropic", "openai"],
+                                      help="'anthropic' uses Claude API. 'openai' uses any OpenAI-compatible endpoint.")
+
+        if judge_provider == "openai":
+            jcol1, jcol2 = st.columns(2)
+            with jcol1:
+                judge_base_url = st.text_input("Judge API Endpoint", value="",
+                                               help="OpenAI-compatible endpoint for the judge model")
+            with jcol2:
+                judge_model = st.text_input("Judge Model Name", value="",
+                                            help="Model name on the judge endpoint")
+            judge_api_key = st.text_input("Judge API Key (optional)", value="", type="password",
+                                          help="API key for the judge endpoint")
+        else:
+            judge_base_url = ""
+            judge_model = st.text_input("Claude Model", value="claude-sonnet-4-6",
+                                        help="Anthropic model to use as judge")
+            judge_api_key = st.text_input("Anthropic API Key (optional)", value="", type="password",
+                                          help="Leave blank to use ANTHROPIC_API_KEY from .env")
+
+        st.markdown("---")
         st.markdown("**Test Categories**")
         col5, col6, col7 = st.columns(3)
         with col5:
@@ -511,6 +534,10 @@ elif page == "Run Benchmark":
                         base_url=run_base_url.strip(),
                         api_key=run_api_key.strip() or None,
                         timeout=run_timeout,
+                        judge_provider=judge_provider,
+                        judge_model=judge_model.strip() or None,
+                        judge_base_url=judge_base_url.strip() or None,
+                        judge_api_key=judge_api_key.strip() or None,
                     )
 
                     status_text.markdown("**Starting benchmark...**")
