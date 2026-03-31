@@ -465,8 +465,8 @@ elif page == "Run Benchmark":
                                           help="API key for the judge endpoint (OpenAI, etc.)")
         else:
             judge_base_url = ""
-            judge_model = st.text_input("Claude Model", value="claude-sonnet-4-6",
-                                        help="Anthropic model to use as judge")
+            judge_model = st.text_input("Judge Model", value="claude-sonnet-4-6",
+                                        help="Model to use as judge")
             judge_api_key = st.text_input("Judge API Key (optional)", value="", type="password",
                                           help="Anthropic API key — leave blank to use ANTHROPIC_API_KEY from .env")
 
