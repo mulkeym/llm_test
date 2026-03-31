@@ -6,7 +6,7 @@ A Python benchmarking tool for evaluating local LLMs served via OpenAI-compatibl
 - **Knowledge Depth** — How well does the model answer technical IT questions? (5 domains: networking, linux admin, scripting, cloud infra, security)
 - **Context Handling** — Can the model find specific facts buried in long documents? (needle-in-a-haystack, 2K–50K tokens)
 
-Results are scored using Claude as a judge, persisted in SQLite, and visualized in a Streamlit dashboard.
+Results are scored by a configurable judge (Claude or any OpenAI-compatible model), persisted in SQLite, and visualized in a Streamlit dashboard.
 
 ## Quick Start
 
@@ -14,12 +14,14 @@ Results are scored using Claude as a judge, persisted in SQLite, and visualized 
 
 ```bash
 cd llm_test
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
 ### 2. Configure
 
-Copy the example environment file and add your Anthropic API key (used for the Claude judge):
+Copy the example environment file and add your Anthropic API key (used for the default Claude judge):
 
 ```bash
 cp .env.example .env
@@ -30,25 +32,41 @@ Edit `.env`:
 ANTHROPIC_API_KEY=your-key-here
 ```
 
-Edit `config.yaml` to point to your model server:
+> **Note:** The Anthropic key is only needed if using Claude as the judge. You can use any OpenAI-compatible model as the judge instead — see [Judge Configuration](#judge-configuration).
+
+Edit `config.yaml` to set defaults for your model server:
 
 ```yaml
 target_api:
   base_url: "http://192.168.1.181:8080"  # your llama.cpp server
   api_key: ""
-  timeout: 60
+  timeout: 300
   max_retries: 2
 ```
 
 ### 3. Run a Benchmark
+
+#### Option A: From the Dashboard (recommended)
+
+```bash
+streamlit run dashboard/app.py
+```
+
+Navigate to **Run Benchmark** in the sidebar. Configure:
+- API endpoint and model name
+- Judge provider and model
+- Test categories and tiers
+- Timeout
+
+Click **Start Benchmark** and watch progress in real time.
+
+#### Option B: From the CLI
 
 ```bash
 python -m src --model "your-model-name"
 ```
 
 The model name is a label for tracking — it's stored in the results database so you can compare runs later.
-
-#### Options
 
 ```bash
 # Run and export results to JSON
@@ -69,12 +87,43 @@ Launch the Streamlit dashboard:
 streamlit run dashboard/app.py
 ```
 
-The dashboard provides four views:
+The dashboard provides five views:
 
-- **Leaderboard** — All models ranked by composite score
-- **Model Detail** — Per-tier bar charts, category radar chart, and per-test breakdowns with transcripts
-- **Compare** — Side-by-side comparison of 2–3 models
-- **History** — Track the same model's score over time
+- **Dashboard** — Leaderboard at the top, detailed test results below. Defaults to the top-scoring model showing failed tests. Each test expands to show intent, expected result, what the LLM did, and failure highlighting.
+- **Run Benchmark** — Launch benchmark runs directly from the UI with configurable endpoint, model, judge, categories, and tiers.
+- **Model Detail** — Per-tier bar charts, category radar chart, and summary metrics.
+- **Compare** — Side-by-side comparison of 2–3 models.
+- **History** — Track the same model's score over time.
+
+## Judge Configuration
+
+The judge scores knowledge and context tests. Two providers are supported:
+
+### Claude (default)
+
+Uses the Anthropic API. Set `ANTHROPIC_API_KEY` in `.env` or pass it in the dashboard.
+
+```yaml
+# config.yaml
+judge:
+  provider: anthropic
+  model: claude-sonnet-4-6
+```
+
+### OpenAI-compatible
+
+Use any OpenAI-compatible endpoint as the judge — including OpenAI itself, a local model, or any other compatible API.
+
+```yaml
+# config.yaml
+judge:
+  provider: openai
+  base_url: "https://api.openai.com"  # or your local endpoint
+  model: "gpt-4o"
+  api_key: "your-openai-key"          # optional for local models
+```
+
+Both options are also configurable from the **Run Benchmark** page in the dashboard.
 
 ## Test Suite
 
@@ -118,18 +167,25 @@ The dashboard provides four views:
 - Correct ordering — tier 2+ (3 pts)
 - Parallel calls — tier 3 (2 pts)
 
-### Knowledge (Claude Judge)
+### Knowledge (Judge-scored)
 - Factual accuracy (40%)
 - Completeness (25%)
 - Reasoning quality (20%)
 - Clarity (15%)
 
-### Context (Deterministic + Claude Judge)
+### Context (Deterministic + Judge for paraphrased answers)
 - Retrieval accuracy (7 pts)
 - Position agnostic (3 pts)
 
 ### Composite Score
-Default weighting: 40% tool calling, 30% knowledge, 30% context. Configurable in `config.yaml`.
+Default weighting: 40% tool calling, 30% knowledge, 30% context. Configurable in `config.yaml`:
+
+```yaml
+scoring:
+  tool_weight: 0.4
+  knowledge_weight: 0.3
+  context_weight: 0.3
+```
 
 ## Adding Custom Tests
 
@@ -151,7 +207,7 @@ tests/
 
 See `docs/plans/2026-03-30-llm-benchmark-design.md` for YAML formats and examples.
 
-## Running Tests
+## Running Unit Tests
 
 ```bash
 python -m pytest tests/ -v
@@ -165,14 +221,14 @@ llm_test/
 ├── src/
 │   ├── runner.py        # Test orchestration
 │   ├── client.py        # OpenAI-compatible API client
-│   ├── judge.py         # Claude-as-judge scoring
+│   ├── judge.py         # Configurable judge (Anthropic or OpenAI-compatible)
 │   ├── scorer.py        # Deterministic tool-calling scorer
 │   ├── context.py       # Filler generator + needle insertion
 │   ├── loader.py        # YAML test/tool loader
 │   ├── db.py            # SQLite persistence
 │   └── export.py        # JSON/CSV export
 ├── dashboard/
-│   └── app.py           # Streamlit dashboard
+│   └── app.py           # Streamlit dashboard + benchmark runner UI
 ├── tools/               # 18 tool definitions (YAML)
 └── tests/               # 105 test cases (YAML) + unit tests
 ```
