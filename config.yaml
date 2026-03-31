@@ -1,12 +1,12 @@
 target_api:
   base_url: "http://192.168.1.181:8080"
   api_key: ""
-  timeout: 60
+  timeout: 300
   max_retries: 2
 
 judge:
   provider: anthropic
-  model: claude-sonnet-4-6-20250514
+  model: claude-sonnet-4-6
 
 scoring:
   tool_weight: 0.4

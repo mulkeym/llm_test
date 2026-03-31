@@ -7,6 +7,7 @@ from typing import List, Optional
 class Database:
     def __init__(self, path: str = "results.db"):
         self.conn = sqlite3.connect(path)
+        self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.row_factory = sqlite3.Row
         self._create_tables()
 
