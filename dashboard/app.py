@@ -401,7 +401,7 @@ if page == "Dashboard":
                     color, badge, test_name, r["score"], r["max_score"], pct, r["category"], r["tier"]
                 )
 
-                with st.expander(header, expanded=(status != "passed")):
+                with st.expander(header, expanded=False):
                     render_test_detail(r, test_def, status)
 
 elif page == "Model Detail":
