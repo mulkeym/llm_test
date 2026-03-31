@@ -58,9 +58,31 @@ def render_test_detail(r, test_def, status):
     prompt = test_def.get("prompt", "N/A")
 
     st.markdown("#### Test Intent")
+
+    # Generate description/prompt for test types that don't have them
+    if category == "context" and description == "No description available":
+        filler_type = test_def.get("filler", "document")
+        context_size = test_def.get("context_size", "?")
+        needle_count = len(test_def.get("needle", []))
+        question_count = len(test_def.get("questions", []))
+        description = "Find {} hidden fact(s) in a {} filler document (~{} tokens), then answer {} question(s).".format(
+            needle_count, filler_type, context_size, question_count
+        )
+
     st.markdown("**Description:** {}".format(description))
-    st.markdown("**Prompt sent to model:**")
-    st.code(prompt, language=None)
+
+    if prompt != "N/A":
+        st.markdown("**Prompt sent to model:**")
+        st.code(prompt, language=None)
+    elif category == "context":
+        questions = test_def.get("questions", [])
+        if questions:
+            st.markdown("**Questions sent to model** (each with the full document as context):")
+            for q in questions:
+                if isinstance(q, dict):
+                    st.code(q.get("question", q.get("text", "")), language=None)
+                else:
+                    st.code(str(q), language=None)
 
     # Expected result
     st.markdown("#### Expected Result")
