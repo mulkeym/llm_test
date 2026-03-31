@@ -22,6 +22,13 @@ def get_test_definitions():
 
 test_defs = get_test_definitions()
 
+def make_run_label(r):
+    """Create unique label for each run using model name + full timestamp."""
+    ts = r["timestamp"][:19].replace("T", " ")
+    score = r.get("composite_score")
+    score_str = " | {:.1f}%".format(score) if score is not None else " | incomplete"
+    return "{} ({}{})".format(r["model_name"], ts, score_str)
+
 page = st.sidebar.selectbox("View", ["Leaderboard", "Model Detail", "Test Results", "Compare", "History"])
 
 if page == "Leaderboard":
@@ -60,7 +67,7 @@ elif page == "Model Detail":
     if not runs:
         st.info("No runs yet.")
     else:
-        run_options = {"{} ({})".format(r["model_name"], r["timestamp"][:10]): r["id"] for r in runs}
+        run_options = {make_run_label(r): r["id"] for r in runs}
         selected = st.selectbox("Select run", list(run_options.keys()))
         run_id = run_options[selected]
         results = db.get_results_by_run(run_id)
@@ -125,7 +132,7 @@ elif page == "Test Results":
     if not runs:
         st.info("No runs yet.")
     else:
-        run_options = {"{} ({})".format(r["model_name"], r["timestamp"][:10]): r["id"] for r in runs}
+        run_options = {make_run_label(r): r["id"] for r in runs}
         selected = st.selectbox("Select run", list(run_options.keys()))
         run_id = run_options[selected]
         results = db.get_results_by_run(run_id)
@@ -326,7 +333,7 @@ elif page == "Compare":
     if len(runs) < 2:
         st.info("Need at least 2 runs to compare.")
     else:
-        run_options = {"{} ({})".format(r["model_name"], r["timestamp"][:10]): r["id"] for r in runs}
+        run_options = {make_run_label(r): r["id"] for r in runs}
         selected = st.multiselect("Select runs to compare (2-3)", list(run_options.keys()), max_selections=3)
         if len(selected) >= 2:
             compare_data = []
