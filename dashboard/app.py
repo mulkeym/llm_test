@@ -308,7 +308,7 @@ def render_test_detail(r, test_def, status):
 
 
 # ── Page Navigation ──
-page = st.sidebar.selectbox("View", ["Dashboard", "Model Detail", "Compare", "History"])
+page = st.sidebar.selectbox("View", ["Dashboard", "Run Benchmark", "Model Detail", "Compare", "History"])
 
 if page == "Dashboard":
     st.title("LLM Benchmark Dashboard")
@@ -425,6 +425,119 @@ if page == "Dashboard":
 
                 with st.expander(header, expanded=False):
                     render_test_detail(r, test_def, status)
+
+elif page == "Run Benchmark":
+    st.title("Run Benchmark")
+
+    with st.form("run_benchmark_form"):
+        st.markdown("Configure and launch a benchmark run.")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            run_base_url = st.text_input("API Endpoint", value="http://192.168.1.181:8080",
+                                         help="OpenAI-compatible API base URL (e.g., llama.cpp server)")
+        with col2:
+            run_model_name = st.text_input("Model Name", value="",
+                                           help="Label for this model (used in leaderboard)")
+
+        col3, col4 = st.columns(2)
+        with col3:
+            run_timeout = st.number_input("Timeout (seconds)", value=300, min_value=30, max_value=1800, step=30,
+                                          help="Max seconds to wait for each API response")
+        with col4:
+            run_api_key = st.text_input("API Key (optional)", value="", type="password",
+                                        help="If your server requires an API key")
+
+        st.markdown("**Test Categories**")
+        col5, col6, col7 = st.columns(3)
+        with col5:
+            run_tool_calling = st.checkbox("Tool Calling", value=True)
+        with col6:
+            run_knowledge = st.checkbox("Knowledge", value=True)
+        with col7:
+            run_context = st.checkbox("Context", value=True)
+
+        st.markdown("**Tiers**")
+        col8, col9, col10 = st.columns(3)
+        with col8:
+            run_tier1 = st.checkbox("Tier 1 (Basic)", value=True)
+        with col9:
+            run_tier2 = st.checkbox("Tier 2 (Intermediate)", value=True)
+        with col10:
+            run_tier3 = st.checkbox("Tier 3 (Advanced)", value=True)
+
+        submitted = st.form_submit_button("Start Benchmark", type="primary")
+
+    if submitted:
+        if not run_model_name.strip():
+            st.error("Please enter a model name.")
+        else:
+            run_categories = []
+            if run_tool_calling:
+                run_categories.append("tool_calling")
+            if run_knowledge:
+                run_categories.append("knowledge")
+            if run_context:
+                run_categories.append("context")
+
+            run_tiers = []
+            if run_tier1:
+                run_tiers.append(1)
+            if run_tier2:
+                run_tiers.append(2)
+            if run_tier3:
+                run_tiers.append(3)
+
+            if not run_categories:
+                st.error("Select at least one test category.")
+            elif not run_tiers:
+                st.error("Select at least one tier.")
+            else:
+                from src.runner import BenchmarkRunner
+
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                results_container = st.empty()
+
+                def update_progress(current, total, category, name, tier):
+                    progress_bar.progress(current / total)
+                    status_text.markdown("**[{}/{}]** Running `{}/{}` (Tier {})...".format(
+                        current, total, category, name, tier
+                    ))
+
+                try:
+                    status_text.markdown("**Initializing benchmark runner...**")
+                    runner = BenchmarkRunner(
+                        base_url=run_base_url.strip(),
+                        api_key=run_api_key.strip() or None,
+                        timeout=run_timeout,
+                    )
+
+                    status_text.markdown("**Starting benchmark...**")
+                    run_id = runner.run(
+                        model_name=run_model_name.strip(),
+                        categories=run_categories,
+                        tiers=run_tiers,
+                        progress_callback=update_progress,
+                    )
+
+                    progress_bar.progress(1.0)
+
+                    if run_id:
+                        run = runner.db.get_run(run_id)
+                        status_text.empty()
+                        st.success("Benchmark complete! Composite score: **{:.1f}%**".format(
+                            run["composite_score"] or 0
+                        ))
+                        st.markdown("Switch to the **Dashboard** page to see detailed results.")
+                        st.balloons()
+                    else:
+                        status_text.empty()
+                        st.warning("No test cases matched the selected filters.")
+
+                except Exception as e:
+                    status_text.empty()
+                    st.error("Benchmark failed: {}".format(str(e)))
 
 elif page == "Model Detail":
     st.title("Model Detail")

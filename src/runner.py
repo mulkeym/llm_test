@@ -17,40 +17,46 @@ from .scorer import ToolCallScorer
 
 
 class BenchmarkRunner:
-    def __init__(self, config_path: str = "config.yaml"):
+    def __init__(self, config_path: str = "config.yaml",
+                 base_url: Optional[str] = None,
+                 api_key: Optional[str] = None,
+                 timeout: Optional[int] = None):
         load_dotenv()
         with open(config_path) as f:
             self.config = yaml.safe_load(f)
 
         api_cfg = self.config["target_api"]
         self.client = LLMClient(
-            base_url=api_cfg["base_url"],
-            api_key=api_cfg.get("api_key", ""),
-            timeout=api_cfg.get("timeout", 60),
+            base_url=base_url or api_cfg["base_url"],
+            api_key=api_key or api_cfg.get("api_key", ""),
+            timeout=timeout or api_cfg.get("timeout", 60),
             max_retries=api_cfg.get("max_retries", 2),
         )
         self.judge = Judge(
             api_key=os.getenv("ANTHROPIC_API_KEY"),
-            model=self.config["judge"].get("model", "claude-sonnet-4-6-20250514"),
+            model=self.config["judge"].get("model", "claude-sonnet-4-6"),
         )
         self.db = Database()
         self.scorer = ToolCallScorer()
         self.context_gen = ContextGenerator(seed=42)
         self.tools = load_tools("tools")
 
-    def run(self, model_name: str, export_format: Optional[str] = None):
+    def run(self, model_name: str, export_format: Optional[str] = None,
+            categories: Optional[List[str]] = None,
+            tiers: Optional[List[int]] = None,
+            progress_callback=None):
         run_cfg = self.config["run"]
         test_cases = load_tests("tests")
         test_cases = filter_tests(
             test_cases,
-            tiers=run_cfg.get("tiers"),
-            categories=run_cfg.get("categories"),
+            tiers=tiers or run_cfg.get("tiers"),
+            categories=categories or run_cfg.get("categories"),
             domains=run_cfg.get("domains") or None,
         )
 
         if not test_cases:
             print("No test cases found matching config filters.")
-            return
+            return None
 
         run_id = self.db.create_run(model_name, self.config)
         results_summary = {"tool_calling": [], "knowledge": [], "context": []}  # type: Dict[str, List[dict]]
@@ -63,7 +69,11 @@ class BenchmarkRunner:
         for i, tc in enumerate(test_cases, 1):
             category = tc["category"]
             name = tc["name"]
-            print("[{}/{}] {}/{} (tier {})...".format(i, len(test_cases), category, name, tc.get("tier", "?")), end=" ", flush=True)
+            status_msg = "[{}/{}] {}/{} (tier {})...".format(i, len(test_cases), category, name, tc.get("tier", "?"))
+            print(status_msg, end=" ", flush=True)
+
+            if progress_callback:
+                progress_callback(i, len(test_cases), category, name, tc.get("tier", "?"))
 
             try:
                 if category == "tool_calling":
@@ -96,6 +106,8 @@ class BenchmarkRunner:
         if export_format:
             from .export import export_run
             export_run(self.db, run_id, export_format)
+
+        return run_id
 
     def _run_tool_test(self, tc: dict, model_name: str) -> Tuple[float, float, list]:
         available_tool_defs = [self.tools[t] for t in tc["available_tools"] if t in self.tools]
