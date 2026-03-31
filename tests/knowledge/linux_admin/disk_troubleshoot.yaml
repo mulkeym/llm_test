@@ -1,0 +1,13 @@
+name: disk_troubleshoot
+tier: 3
+category: knowledge
+domain: linux_admin
+
+prompt: "A Linux server shows the disk as 100% full when running 'df -h', but 'du -sh /' reports significantly less usage. What are the possible causes of this discrepancy and how would you investigate and resolve each one?"
+
+judge_criteria:
+  - "Must identify deleted files still held open by running processes (shown in /proc/*/fd or via lsof +L1), explaining that the space is not freed until the process releases the file handle"
+  - "Must mention reserved blocks for root (typically 5% on ext4), which can be adjusted with tune2fs -m"
+  - "Must mention inode exhaustion as a possible cause (df -i shows 100% inode usage even though blocks are available), often caused by many tiny files"
+  - "Must mention files hidden under mount points as a possibility, where files written to a directory before a filesystem was mounted over it consume space invisibly"
+  - "Must describe troubleshooting tools: lsof, df -i, du with --max-depth, and checking /proc for open file descriptors"

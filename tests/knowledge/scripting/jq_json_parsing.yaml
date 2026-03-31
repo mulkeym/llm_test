@@ -1,0 +1,12 @@
+name: jq_json_parsing
+tier: 2
+category: knowledge
+domain: scripting
+
+prompt: "Given a JSON response from a Kubernetes API that contains a list of pods with nested metadata, status, and container information, show how to use jq to: (1) extract all pod names, (2) filter pods in 'Running' state, (3) get the restart count for each container, and (4) find pods with more than 3 restarts."
+
+judge_criteria:
+  - "Must demonstrate basic jq field access using dot notation for nested objects, e.g., .items[].metadata.name"
+  - "Must show filtering with select(), e.g., .items[] | select(.status.phase == \"Running\")"
+  - "Must demonstrate accessing nested arrays within objects, e.g., navigating through .status.containerStatuses[].restartCount"
+  - "Must show a combined filter with a comparison, e.g., select(.status.containerStatuses[].restartCount > 3)"

@@ -1,0 +1,12 @@
+name: auto_scaling
+tier: 1
+category: knowledge
+domain: cloud_infra
+
+prompt: "Explain horizontal scaling versus vertical scaling. What is auto-scaling and what strategies can be used to trigger scaling events? Describe the key metrics and considerations for configuring auto-scaling in a cloud environment."
+
+judge_criteria:
+  - "Must explain vertical scaling (scaling up) adds more resources (CPU, RAM) to a single instance, limited by hardware maximums and usually requires downtime"
+  - "Must explain horizontal scaling (scaling out) adds more instances behind a load balancer, providing better fault tolerance and theoretically unlimited capacity"
+  - "Must describe auto-scaling triggers: CPU utilization, memory usage, request count, queue depth, custom metrics, or scheduled scaling for predictable load patterns"
+  - "Must mention important considerations: cooldown periods to prevent thrashing, minimum and maximum instance counts, health checks to avoid scaling on unhealthy instances, and connection draining during scale-in"

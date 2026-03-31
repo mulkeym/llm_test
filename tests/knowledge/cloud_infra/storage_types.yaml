@@ -1,0 +1,12 @@
+name: storage_types
+tier: 1
+category: knowledge
+domain: cloud_infra
+
+prompt: "Compare block storage, file storage, and object storage. Explain how each works, their performance characteristics, and provide specific use cases and cloud service examples for each type."
+
+judge_criteria:
+  - "Must explain block storage provides raw volumes split into fixed-size blocks, offers lowest latency, and is used for databases and boot volumes (e.g., AWS EBS, Azure Managed Disks)"
+  - "Must explain file storage provides a shared filesystem with hierarchical directory structure accessible via NFS or SMB, used for shared access across multiple instances (e.g., AWS EFS, Azure Files)"
+  - "Must explain object storage stores data as objects with metadata and unique identifiers in a flat namespace, is highly scalable and durable, used for backups, media, data lakes, and static assets (e.g., AWS S3, Azure Blob Storage, GCS)"
+  - "Must compare key characteristics: block is fastest but attached to one instance, file allows shared access but lower performance, object is cheapest and most scalable but has higher latency and no in-place modification"

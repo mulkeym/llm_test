@@ -1,0 +1,12 @@
+name: systemd_management
+tier: 2
+category: knowledge
+domain: linux_admin
+
+prompt: "How do you create and manage a custom systemd service? Write a unit file for a Python web application that should start on boot, restart on failure, and run as a non-root user. Explain the key directives."
+
+judge_criteria:
+  - "Must include a valid unit file with [Unit], [Service], and [Install] sections"
+  - "Must include key directives: Description, After (dependencies), ExecStart (command to run), Restart (on-failure or always), User, and WantedBy (multi-user.target)"
+  - "Must explain management commands: systemctl start, stop, enable, disable, status, and journalctl for viewing logs"
+  - "Must mention that unit files go in /etc/systemd/system/ and that systemctl daemon-reload is needed after changes"

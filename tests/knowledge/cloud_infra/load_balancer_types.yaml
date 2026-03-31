@@ -1,0 +1,12 @@
+name: load_balancer_types
+tier: 1
+category: knowledge
+domain: cloud_infra
+
+prompt: "Explain the difference between Layer 4 (L4) and Layer 7 (L7) load balancers. How does each type make routing decisions? When would you choose one over the other? Provide examples of each type in major cloud platforms."
+
+judge_criteria:
+  - "Must explain that L4 load balancers operate at the transport layer, routing based on IP address and TCP/UDP port without inspecting packet contents, making them faster and lower overhead"
+  - "Must explain that L7 load balancers operate at the application layer, can inspect HTTP headers, URLs, cookies, and content to make intelligent routing decisions like path-based or host-based routing"
+  - "Must provide use cases: L4 for high-throughput low-latency needs like TCP passthrough, non-HTTP protocols, or gaming; L7 for HTTP routing, SSL termination, content-based routing, and web applications"
+  - "Must mention cloud examples such as AWS NLB (L4) vs ALB (L7), or GCP Network LB vs HTTP(S) LB, or Azure Load Balancer vs Application Gateway"

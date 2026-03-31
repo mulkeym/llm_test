@@ -1,0 +1,12 @@
+name: bgp_basics
+tier: 2
+category: knowledge
+domain: networking
+
+prompt: "What is BGP (Border Gateway Protocol) and how does its path selection process work? Explain the difference between iBGP and eBGP, and describe at least four BGP path selection attributes in order of preference."
+
+judge_criteria:
+  - "Must explain that BGP is a path-vector routing protocol used to exchange routing information between autonomous systems (AS) on the internet"
+  - "Must distinguish iBGP (between routers in the same AS) from eBGP (between routers in different ASes), noting iBGP does not modify the next-hop by default"
+  - "Must list BGP path selection attributes in correct priority order, including at least: highest local preference, shortest AS-path length, lowest origin type (IGP < EGP < incomplete), and lowest MED"
+  - "Must mention that BGP uses TCP port 179 for establishing peer sessions"

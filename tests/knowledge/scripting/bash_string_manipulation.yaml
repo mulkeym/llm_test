@@ -1,0 +1,12 @@
+name: bash_string_manipulation
+tier: 1
+category: knowledge
+domain: scripting
+
+prompt: "Show how to perform common string operations in bash without external tools: extract the domain from a URL like 'https://api.example.com/v2/users', replace all dashes with underscores in a variable, get a substring by position, and check if a string contains a specific pattern."
+
+judge_criteria:
+  - "Must demonstrate parameter expansion for extraction, e.g., ${url#*://} to strip protocol and ${var%%/*} to strip path, or similar chained expansions"
+  - "Must show string replacement with ${var//-/_} for replacing all dashes with underscores (double slash for global replacement)"
+  - "Must show substring extraction with ${var:offset:length} syntax"
+  - "Must show pattern matching using [[ $string == *pattern* ]] or [[ $string =~ regex ]] for conditional checks"

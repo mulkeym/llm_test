@@ -1,0 +1,12 @@
+name: ha_patterns
+tier: 1
+category: knowledge
+domain: cloud_infra
+
+prompt: "Explain active-active and active-passive high availability (HA) patterns. What are the trade-offs of each approach? How do you handle data consistency, failover, and health checking in each pattern?"
+
+judge_criteria:
+  - "Must explain active-active: all nodes serve traffic simultaneously, providing better resource utilization and throughput, but requiring careful handling of data consistency (e.g., distributed databases, session replication)"
+  - "Must explain active-passive: only the primary node serves traffic while the standby remains idle until failover is triggered, simpler to implement but wastes standby resources during normal operation"
+  - "Must discuss failover mechanisms: active-passive requires detection of primary failure and promotion of standby (which introduces downtime), while active-active handles node loss by redistributing traffic across remaining nodes"
+  - "Must mention health checking approaches such as heartbeats, load balancer health probes, or consensus protocols for detecting failures"

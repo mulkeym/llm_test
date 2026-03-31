@@ -1,0 +1,13 @@
+name: python_api_script
+tier: 2
+category: knowledge
+domain: scripting
+
+prompt: "Write a Python script that monitors an HTTP API endpoint by making periodic health check requests. It should check every 60 seconds, verify the response status code and response time, log results, and send an alert (via email or webhook) if the endpoint is down or slow. Include proper error handling."
+
+judge_criteria:
+  - "Must use the requests library (or urllib/httpx) with a timeout parameter to avoid hanging on unresponsive endpoints"
+  - "Must include proper error handling with try/except for connection errors, timeouts, and HTTP error status codes"
+  - "Must implement response time measurement and comparison against a threshold"
+  - "Must include a notification mechanism (email via smtplib, webhook via requests.post, or similar) for alerting on failures"
+  - "Must include a loop or scheduling mechanism (time.sleep, schedule library, or similar) for periodic execution"

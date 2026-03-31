@@ -1,0 +1,13 @@
+name: ospf_areas
+tier: 3
+category: knowledge
+domain: networking
+
+prompt: "Explain OSPF area types and their purposes. Describe the backbone area, stub areas, totally stubby areas, and NSSAs. What are the different LSA types and how do area types affect LSA propagation?"
+
+judge_criteria:
+  - "Must explain Area 0 (backbone) as the central area that all other areas must connect to, and that inter-area traffic must transit through Area 0"
+  - "Must explain stub areas block external LSAs (Type 5) and replace them with a default route, reducing the routing table size"
+  - "Must explain totally stubby areas block both external LSAs (Type 5) and inter-area summary LSAs (Type 3), allowing only a default route"
+  - "Must explain NSSA (Not-So-Stubby Area) allows importing external routes via Type 7 LSAs which are converted to Type 5 at the ABR"
+  - "Must describe at least LSA Types 1 (Router), 2 (Network), 3 (Summary), 5 (External), and 7 (NSSA External)"

@@ -1,0 +1,12 @@
+name: cgroup_namespaces
+tier: 3
+category: knowledge
+domain: linux_admin
+
+prompt: "Explain Linux cgroups and namespaces. What are the different types of namespaces? How do cgroups control resource allocation? How do containers like Docker use these kernel features together?"
+
+judge_criteria:
+  - "Must explain namespaces provide isolation of system resources, listing key types: PID (process IDs), NET (networking), MNT (mount points), UTS (hostname), IPC (inter-process communication), and USER (user/group IDs)"
+  - "Must explain cgroups (control groups) limit and track resource usage including CPU, memory, I/O, and network bandwidth for groups of processes"
+  - "Must explain how containers combine both: namespaces provide isolation (each container sees its own filesystem, network, PIDs) while cgroups enforce resource limits (prevent one container from consuming all host resources)"
+  - "Must mention cgroups v2 as the modern unified hierarchy replacing the per-resource-controller hierarchy of cgroups v1"

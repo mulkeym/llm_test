@@ -1,0 +1,12 @@
+name: regex_patterns
+tier: 2
+category: knowledge
+domain: scripting
+
+prompt: "Write a regular expression to validate an IPv4 address. The regex should match valid addresses like 192.168.1.1 and 10.0.0.255 but reject invalid ones like 256.1.1.1 or 192.168.1. Explain each part of your pattern."
+
+judge_criteria:
+  - "Must provide a regex that correctly validates each octet is between 0 and 255, not just matching any digits — must handle the 250-255, 200-249, and 0-199 ranges"
+  - "Must anchor the pattern with ^ and $ to prevent partial matches"
+  - "Must correctly reject values like 256 or 999 in any octet position"
+  - "Must explain the regex components and how each octet is validated, demonstrating understanding rather than just providing the pattern"

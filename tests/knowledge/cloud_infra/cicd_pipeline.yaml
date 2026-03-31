@@ -1,0 +1,13 @@
+name: cicd_pipeline
+tier: 2
+category: knowledge
+domain: cloud_infra
+
+prompt: "Design a CI/CD pipeline for a containerized microservice. Include stages from code commit to production deployment, covering building, testing (unit, integration, security scanning), artifact management, and deployment strategies. What tools would you use at each stage?"
+
+judge_criteria:
+  - "Must include CI stages: source checkout, dependency installation, unit tests, linting/static analysis, build container image, and push to a container registry"
+  - "Must include security scanning in the pipeline: container image vulnerability scanning (e.g., Trivy, Snyk), static application security testing (SAST), or dependency vulnerability checks"
+  - "Must include a deployment strategy such as blue-green, canary, or rolling deployment, explaining how it minimizes risk during releases"
+  - "Must mention artifact versioning with semantic versioning or git SHA tags, and storing artifacts in a registry (Docker Hub, ECR, GCR)"
+  - "Must mention a CI/CD tool by name (e.g., GitHub Actions, GitLab CI, Jenkins, ArgoCD) and describe the pipeline configuration approach"

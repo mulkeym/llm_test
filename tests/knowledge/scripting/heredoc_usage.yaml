@@ -1,0 +1,12 @@
+name: heredoc_usage
+tier: 1
+category: knowledge
+domain: scripting
+
+prompt: "Explain heredocs in bash scripting. Show the syntax for basic heredocs, heredocs with variable expansion disabled, heredocs with indentation support, and provide practical examples such as generating a config file or passing multi-line input to a command."
+
+judge_criteria:
+  - "Must show basic heredoc syntax with << EOF ... EOF and explain that variables and commands are expanded within it by default"
+  - "Must show quoted heredoc with << 'EOF' ... EOF that disables variable expansion and command substitution (literal output)"
+  - "Must show indented heredoc with <<- EOF that strips leading tabs, useful for maintaining script readability"
+  - "Must provide at least one practical example such as generating a configuration file, passing multi-line SQL to a database client, or creating a multi-line variable"

@@ -1,0 +1,13 @@
+name: file_permissions
+tier: 1
+category: knowledge
+domain: linux_admin
+
+prompt: "Explain Linux file permissions including chmod, chown, and special permissions. What is the sticky bit, setuid, and setgid? Provide examples of when each is used."
+
+judge_criteria:
+  - "Must explain the standard permission model: read (4), write (2), execute (1) for owner, group, and others, and how chmod uses octal notation (e.g., 755) or symbolic notation (e.g., u+x)"
+  - "Must explain chown changes file ownership (user and/or group) and provide syntax examples like chown user:group file"
+  - "Must explain the sticky bit (chmod +t or 1xxx) prevents users from deleting files they do not own in a shared directory, with /tmp as a common example"
+  - "Must explain setuid (chmod u+s or 4xxx) causes an executable to run with the file owner's permissions, with /usr/bin/passwd as a common example"
+  - "Must explain setgid (chmod g+s or 2xxx) on files runs with the group's permissions, and on directories causes new files to inherit the directory's group"

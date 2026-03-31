@@ -1,0 +1,12 @@
+name: tcp_vs_udp
+tier: 1
+category: knowledge
+domain: networking
+
+prompt: "When would you choose UDP over TCP? Explain the key differences between the two protocols and provide real-world examples of applications that use each and why."
+
+judge_criteria:
+  - "Must explain that TCP is connection-oriented with guaranteed delivery, ordering, and flow control, while UDP is connectionless with no delivery guarantees"
+  - "Must explain that UDP has lower overhead and latency since it does not require connection setup or acknowledgments"
+  - "Must provide valid UDP use cases such as DNS queries, VoIP, video streaming, online gaming, or DHCP, explaining why low latency matters more than guaranteed delivery for these"
+  - "Must provide valid TCP use cases such as HTTP/HTTPS, SSH, FTP, SMTP, or database connections, explaining why reliability and ordering are critical for these"

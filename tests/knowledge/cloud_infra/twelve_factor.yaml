@@ -1,0 +1,12 @@
+name: twelve_factor
+tier: 3
+category: knowledge
+domain: cloud_infra
+
+prompt: "Explain the twelve-factor app methodology. Describe at least eight of the twelve factors, explain why each matters, and discuss how they relate to modern cloud-native and containerized application development."
+
+judge_criteria:
+  - "Must correctly name and explain at least 8 of the 12 factors, drawn from: codebase, dependencies, config, backing services, build/release/run, processes, port binding, concurrency, disposability, dev/prod parity, logs, admin processes"
+  - "Must explain Factor III (Config): store configuration in environment variables rather than in code, enabling the same build to run in any environment"
+  - "Must explain Factor VI (Processes): applications should be stateless and share-nothing, with persistent data stored in backing services, which directly supports horizontal scaling"
+  - "Must connect the methodology to modern practices: containerization (disposability, port binding), CI/CD (build/release/run), microservices (backing services, concurrency), and cloud platforms (config, logs as streams)"

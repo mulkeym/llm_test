@@ -1,0 +1,12 @@
+name: ssh_tunneling
+tier: 2
+category: knowledge
+domain: linux_admin
+
+prompt: "Explain the three types of SSH port forwarding: local, remote, and dynamic. Provide the command syntax for each and describe a practical use case where you would use each type."
+
+judge_criteria:
+  - "Must explain local forwarding (-L local_port:remote_host:remote_port) forwards a local port through the SSH tunnel to a remote destination, use case: accessing a remote database that only listens on localhost"
+  - "Must explain remote forwarding (-R remote_port:local_host:local_port) exposes a local service through the remote SSH server, use case: letting a remote server reach a local development service"
+  - "Must explain dynamic forwarding (-D port) creates a SOCKS proxy through the SSH tunnel, use case: routing browser traffic through a secure tunnel"
+  - "Must provide correct SSH command syntax for each type, e.g., ssh -L 5432:localhost:5432 user@bastion"

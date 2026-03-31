@@ -1,0 +1,12 @@
+name: zero_trust
+tier: 3
+category: knowledge
+domain: security
+
+prompt: "Explain zero trust architecture principles. What does 'never trust, always verify' mean in practice? Describe the key components of a zero trust implementation, how it differs from traditional perimeter-based security, and the challenges of adopting it."
+
+judge_criteria:
+  - "Must explain the core principle: no implicit trust based on network location; every request must be authenticated, authorized, and encrypted regardless of whether it comes from inside or outside the network"
+  - "Must describe key components: strong identity verification (MFA), device health validation, micro-segmentation, least-privilege access policies, and continuous monitoring/validation"
+  - "Must contrast with traditional perimeter security: perimeter model trusts everything inside the firewall (castle-and-moat), which fails when an attacker breaches the perimeter or with insider threats; zero trust eliminates the concept of trusted internal network"
+  - "Must discuss implementation challenges: retrofitting legacy applications, managing the complexity of micro-segmentation, user experience impact from additional authentication, and the need for comprehensive identity management"

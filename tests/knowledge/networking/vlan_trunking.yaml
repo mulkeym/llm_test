@@ -1,0 +1,12 @@
+name: vlan_trunking
+tier: 2
+category: knowledge
+domain: networking
+
+prompt: "Explain 802.1Q VLAN tagging and trunk ports. How does a switch differentiate traffic from different VLANs on a trunk link? What is the native VLAN and why does it matter?"
+
+judge_criteria:
+  - "Must explain that 802.1Q inserts a 4-byte tag into the Ethernet frame header containing the VLAN ID (12-bit field supporting up to 4094 VLANs)"
+  - "Must explain the difference between access ports (carry traffic for a single VLAN, untagged) and trunk ports (carry traffic for multiple VLANs, tagged)"
+  - "Must explain the native VLAN concept: traffic on the native VLAN is sent untagged across the trunk, and mismatched native VLANs between switches can cause security issues or traffic leakage"
+  - "Must mention that switches use the VLAN ID tag to forward frames to the correct VLAN on the receiving end"

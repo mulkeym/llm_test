@@ -1,0 +1,12 @@
+name: iac_concepts
+tier: 2
+category: knowledge
+domain: cloud_infra
+
+prompt: "Compare Terraform, AWS CloudFormation, and Ansible as Infrastructure as Code (IaC) tools. What are the key differences in approach, state management, multi-cloud support, and when would you choose each one?"
+
+judge_criteria:
+  - "Must explain Terraform uses a declarative approach with HCL, maintains state in a state file (local or remote backend like S3), and is cloud-agnostic supporting multiple providers"
+  - "Must explain CloudFormation is AWS-native, uses JSON/YAML templates, manages state internally in AWS, and offers deep integration with AWS services but is limited to AWS"
+  - "Must explain Ansible is primarily a configuration management tool that is procedural/imperative (playbooks run tasks in order), agentless (uses SSH), and is better suited for configuring software on existing infrastructure than provisioning infrastructure"
+  - "Must discuss when to choose each: Terraform for multi-cloud infrastructure provisioning, CloudFormation for AWS-only shops wanting tight integration, Ansible for configuration management and application deployment"

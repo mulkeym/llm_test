@@ -1,0 +1,13 @@
+name: container_orchestration
+tier: 2
+category: knowledge
+domain: cloud_infra
+
+prompt: "Explain the core Kubernetes concepts: Pods, Services, Deployments, ReplicaSets, and Namespaces. How do they relate to each other? Describe the lifecycle of deploying a new version of an application using these resources."
+
+judge_criteria:
+  - "Must explain that a Pod is the smallest deployable unit containing one or more containers that share network and storage, and that pods are ephemeral"
+  - "Must explain that a Deployment manages ReplicaSets which in turn manage Pods, providing declarative updates, rollback capability, and scaling"
+  - "Must explain Services provide stable network endpoints (ClusterIP, NodePort, LoadBalancer) for accessing a set of Pods, using label selectors for discovery"
+  - "Must explain Namespaces provide logical isolation for resources within a cluster, useful for separating environments or teams"
+  - "Must describe the update process: updating the Deployment spec triggers a rolling update that creates a new ReplicaSet and gradually shifts traffic"

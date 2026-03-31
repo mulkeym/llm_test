@@ -1,0 +1,13 @@
+name: ansible_playbook
+tier: 3
+category: knowledge
+domain: scripting
+
+prompt: "Write an Ansible playbook that installs and configures nginx on a group of web servers. The playbook should: install nginx, deploy a custom configuration from a Jinja2 template, ensure the service is running and enabled, and configure a firewall rule. Use handlers for service restarts and variables for configurability."
+
+judge_criteria:
+  - "Must use correct Ansible playbook YAML structure with hosts, become (privilege escalation), tasks, and handlers sections"
+  - "Must use the template module to deploy a Jinja2 template for nginx configuration with a notify directive to trigger a handler"
+  - "Must define a handler that restarts or reloads nginx only when the configuration changes"
+  - "Must use the appropriate package module (apt/yum/package) to install nginx and the service module to ensure it is running and enabled"
+  - "Must demonstrate use of variables, either in vars section, group_vars, or with defaults that can be overridden"

@@ -1,0 +1,12 @@
+name: log_analysis
+tier: 2
+category: knowledge
+domain: security
+
+prompt: "During a security incident investigation, what should you look for in system and application logs? Describe the key indicators of compromise (IoCs) in different log sources (auth logs, web server logs, firewall logs, system logs) and the tools/techniques for analyzing them."
+
+judge_criteria:
+  - "Must identify IoCs in authentication logs: repeated failed login attempts (brute force), successful logins at unusual hours or from unusual IPs, privilege escalation events, new user creation, or password changes"
+  - "Must identify IoCs in web server logs: SQL injection patterns in URLs, directory traversal attempts, unusual HTTP methods, high request rates from single IPs, requests to known malicious paths, or large response sizes indicating data exfiltration"
+  - "Must identify IoCs in firewall/network logs: outbound connections to known malicious IPs/domains, unusual port usage, data transfer spikes, DNS tunneling indicators, or lateral movement between internal hosts"
+  - "Must mention analysis tools and techniques: centralized logging (ELK stack, Splunk), correlation across log sources, timeline construction, and using SIEM tools for automated detection"

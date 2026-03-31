@@ -1,0 +1,12 @@
+name: tls_handshake
+tier: 2
+category: knowledge
+domain: security
+
+prompt: "Explain the TLS 1.3 handshake process. How does it differ from TLS 1.2? What are the key improvements in security and performance? Describe the role of cipher suites, key exchange, and certificates in the handshake."
+
+judge_criteria:
+  - "Must explain TLS 1.3 achieves a 1-RTT handshake (reduced from 2-RTT in TLS 1.2): ClientHello includes key shares, ServerHello responds with key share and encrypted extensions, reducing latency"
+  - "Must mention 0-RTT resumption mode in TLS 1.3 for previously connected clients, along with its replay attack risk"
+  - "Must explain that TLS 1.3 removed insecure algorithms: no RSA key exchange (forward secrecy mandatory via ECDHE or DHE), no CBC mode ciphers, no RC4, MD5, or SHA-1"
+  - "Must explain forward secrecy: each session uses ephemeral keys so compromising the server's long-term private key does not decrypt past sessions"

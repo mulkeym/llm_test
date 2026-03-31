@@ -1,0 +1,12 @@
+name: nat_types
+tier: 1
+category: knowledge
+domain: networking
+
+prompt: "Explain the three main types of Network Address Translation (NAT): static NAT, dynamic NAT, and PAT (Port Address Translation). When would you use each type?"
+
+judge_criteria:
+  - "Must explain static NAT as a one-to-one permanent mapping between a private IP and a public IP, typically used for servers that need consistent external access"
+  - "Must explain dynamic NAT as a many-to-many mapping from a pool of public IPs assigned on demand, where the number of simultaneous translations is limited by the pool size"
+  - "Must explain PAT (also called NAT overload) as a many-to-one mapping that uses port numbers to distinguish connections, allowing many internal hosts to share a single public IP"
+  - "Must mention that PAT is the most commonly used form of NAT in home and enterprise networks due to IPv4 address conservation"

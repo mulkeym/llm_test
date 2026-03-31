@@ -1,0 +1,12 @@
+name: iptables_chains
+tier: 2
+category: knowledge
+domain: linux_admin
+
+prompt: "Explain iptables chains and tables. What are the INPUT, OUTPUT, and FORWARD chains? Describe the NAT table and its PREROUTING and POSTROUTING chains. Provide an example of allowing SSH while blocking all other incoming traffic."
+
+judge_criteria:
+  - "Must explain the filter table chains: INPUT (packets destined for the local system), OUTPUT (packets originating from the local system), and FORWARD (packets being routed through the system)"
+  - "Must explain the NAT table with PREROUTING (alter packets before routing, used for DNAT/port forwarding) and POSTROUTING (alter packets after routing, used for SNAT/masquerading)"
+  - "Must provide a working example that sets default INPUT policy to DROP, allows established/related connections (-m state --state ESTABLISHED,RELATED -j ACCEPT), and allows SSH on port 22"
+  - "Must mention the rule processing order: rules are evaluated top-to-bottom and the first match wins"

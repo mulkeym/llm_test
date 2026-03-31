@@ -1,0 +1,12 @@
+name: process_signals
+tier: 1
+category: knowledge
+domain: linux_admin
+
+prompt: "Explain Linux process signals SIGTERM, SIGKILL, and SIGHUP. What does each do, what are their signal numbers, and when would you use each one? How does a well-written application handle these signals?"
+
+judge_criteria:
+  - "Must explain SIGTERM (signal 15) is the default signal sent by kill, requests graceful termination, and can be caught and handled by the process"
+  - "Must explain SIGKILL (signal 9) forcefully terminates a process immediately, cannot be caught or ignored, and should only be used as a last resort"
+  - "Must explain SIGHUP (signal 1) was originally for hangup detection, but is commonly used to tell daemons to reload their configuration without restarting"
+  - "Must explain that well-written applications should catch SIGTERM to perform cleanup (close connections, flush buffers, save state) before exiting"

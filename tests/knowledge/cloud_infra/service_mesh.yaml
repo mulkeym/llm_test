@@ -1,0 +1,13 @@
+name: service_mesh
+tier: 3
+category: knowledge
+domain: cloud_infra
+
+prompt: "Explain service mesh architecture. What problems does it solve? Describe the data plane and control plane components. When should you adopt a service mesh versus simpler alternatives? Reference specific implementations."
+
+judge_criteria:
+  - "Must explain the sidecar proxy pattern: a proxy (e.g., Envoy) is deployed alongside each service instance to handle all network traffic, forming the data plane"
+  - "Must explain the control plane (e.g., Istiod in Istio) manages and configures the proxies, handling service discovery, certificate management, and policy distribution"
+  - "Must describe the key features: mutual TLS between services, traffic management (canary routing, retries, circuit breaking), observability (distributed tracing, metrics, access logs), and fine-grained access control"
+  - "Must discuss when NOT to use a service mesh: small number of services, simple communication patterns, or when the operational complexity outweighs the benefits"
+  - "Must reference at least one implementation such as Istio, Linkerd, or Consul Connect"

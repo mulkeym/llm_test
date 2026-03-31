@@ -1,0 +1,12 @@
+name: swap_management
+tier: 1
+category: knowledge
+domain: linux_admin
+
+prompt: "When and how should you configure swap space on a Linux system? Explain the swappiness parameter, how to create a swap file, and the trade-offs of different swap configurations."
+
+judge_criteria:
+  - "Must explain how to create swap: create a file with dd or fallocate, mkswap to format it, swapon to activate, and adding an entry to /etc/fstab for persistence"
+  - "Must explain the vm.swappiness parameter (0-100) controls how aggressively the kernel moves pages from RAM to swap, with lower values preferring to keep data in RAM"
+  - "Must discuss when swap is needed: prevents OOM kills, required for hibernation, and helps when running memory-intensive workloads that occasionally exceed physical RAM"
+  - "Must mention the trade-off: swap on disk is orders of magnitude slower than RAM, and excessive swapping (thrashing) severely degrades performance"

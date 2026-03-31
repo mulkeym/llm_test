@@ -1,0 +1,12 @@
+name: certificate_chain
+tier: 2
+category: knowledge
+domain: security
+
+prompt: "Explain how TLS certificate chains work. What is the role of root CAs, intermediate CAs, and leaf certificates? How does a browser verify a certificate chain? What is certificate pinning and what are its trade-offs?"
+
+judge_criteria:
+  - "Must explain the chain of trust: root CA (self-signed, stored in trust stores) signs intermediate CA certificates, which sign leaf (end-entity) certificates for domains"
+  - "Must explain chain verification: the browser builds a chain from the leaf certificate up through intermediates to a trusted root CA, verifying each signature, checking expiration dates, and checking revocation status"
+  - "Must explain why intermediate CAs exist: to keep the root CA offline and minimize exposure, so the root CA private key is rarely used directly"
+  - "Must explain certificate pinning: associating a specific certificate or public key with a host to prevent trust chain attacks from compromised CAs, and its trade-offs (risk of breaking connectivity if the pinned cert changes, difficulty of rotation, HPKP deprecation in browsers)"

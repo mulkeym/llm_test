@@ -1,0 +1,12 @@
+name: owasp_top10
+tier: 2
+category: knowledge
+domain: security
+
+prompt: "Explain the top three OWASP Top 10 vulnerabilities from the most recent list. For each, describe what the vulnerability is, provide a concrete attack example, and explain the recommended mitigations."
+
+judge_criteria:
+  - "Must cover Broken Access Control (A01:2021): describe how it occurs when users can act outside their intended permissions, with examples like IDOR (insecure direct object references) or privilege escalation, and mitigations like server-side access checks and deny by default"
+  - "Must cover Cryptographic Failures (A02:2021): describe issues like transmitting data in cleartext, using weak/deprecated algorithms, or poor key management, with mitigations like enforcing TLS, using strong algorithms (AES-256, bcrypt for passwords), and proper key rotation"
+  - "Must cover Injection (A03:2021): describe SQL injection, command injection, or XSS with a concrete attack example (e.g., SQL injection via unsanitized input), and mitigations like parameterized queries, input validation, output encoding, and using ORMs"
+  - "Must demonstrate understanding that these rankings are based on real-world incidence data and that mitigations should be defense-in-depth"

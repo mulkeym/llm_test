@@ -1,0 +1,13 @@
+name: subnet_calculation
+tier: 2
+category: knowledge
+domain: networking
+
+prompt: "Given the IP address 10.45.12.130/21, calculate the following: network address, broadcast address, subnet mask in dotted decimal, the range of usable host addresses, and the total number of usable hosts."
+
+judge_criteria:
+  - "Must correctly identify the subnet mask as 255.255.248.0"
+  - "Must correctly calculate the network address as 10.45.8.0"
+  - "Must correctly calculate the broadcast address as 10.45.15.255"
+  - "Must correctly identify the usable host range as 10.45.8.1 through 10.45.15.254"
+  - "Must correctly calculate the number of usable hosts as 2046 (2^11 - 2)"

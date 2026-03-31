@@ -1,0 +1,12 @@
+name: bash_error_handling
+tier: 2
+category: knowledge
+domain: scripting
+
+prompt: "Explain what 'set -euo pipefail' does in a bash script. Break down each option and explain why it matters. Also explain how to use 'trap' for cleanup on exit or error, with a practical example."
+
+judge_criteria:
+  - "Must explain set -e (errexit): exit immediately if any command returns a non-zero exit status"
+  - "Must explain set -u (nounset): treat unset variables as an error and exit, preventing bugs from typos in variable names"
+  - "Must explain set -o pipefail: a pipeline returns the exit status of the last command to fail rather than the last command, preventing silent failures in piped commands"
+  - "Must demonstrate trap with a practical example, such as trap 'rm -f /tmp/lockfile; echo cleanup done' EXIT to perform cleanup on script exit regardless of how it exits"

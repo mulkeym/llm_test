@@ -1,0 +1,12 @@
+name: sed_awk
+tier: 2
+category: knowledge
+domain: scripting
+
+prompt: "You have a web server log file in Combined Log Format. Use sed and awk to: (1) extract all unique IP addresses and count occurrences, (2) find all requests that returned HTTP 500 errors, and (3) calculate the total bytes transferred. Show the commands and explain how they work."
+
+judge_criteria:
+  - "Must use awk to extract IP addresses (first field) and count them, e.g., awk '{print $1}' access.log | sort | uniq -c | sort -rn, or using an awk associative array"
+  - "Must use awk or grep to filter for HTTP 500 status codes, correctly identifying the status code field position in Combined Log Format"
+  - "Must use awk to sum a numeric field for total bytes, e.g., awk '{sum+=$10} END {print sum}' or the correct field number for bytes in the log format"
+  - "Must demonstrate understanding of field separators and how awk splits lines into fields by default on whitespace"

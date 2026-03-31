@@ -1,0 +1,12 @@
+name: bash_loops
+tier: 1
+category: knowledge
+domain: scripting
+
+prompt: "Write a bash for loop to find all .log files in /var/log that are older than 7 days and compress them with gzip. Also show how to iterate over lines in a file and over command output."
+
+judge_criteria:
+  - "Must demonstrate a for loop using a glob pattern or find command to iterate over .log files, e.g., for f in /var/log/*.log or using find with -exec or a while read loop"
+  - "Must show how to use the find command with -mtime +7 to filter files older than 7 days"
+  - "Must show iterating over lines in a file using while IFS= read -r line; do ... done < file"
+  - "Must show iterating over command output, either using command substitution $(command) or piping to a while read loop"

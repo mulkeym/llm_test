@@ -1,0 +1,12 @@
+name: firewall_zones
+tier: 1
+category: knowledge
+domain: security
+
+prompt: "Explain the concept of network security zones including DMZ, trusted (internal), and untrusted (external) zones. How should traffic flow between these zones be controlled? What types of servers typically reside in each zone?"
+
+judge_criteria:
+  - "Must define the DMZ (demilitarized zone) as a network segment between the external and internal networks that hosts public-facing services like web servers, mail servers, and DNS servers"
+  - "Must explain that the untrusted zone is the public internet, the trusted zone is the internal network with sensitive resources like databases and internal applications, and the DMZ sits between them"
+  - "Must describe traffic flow rules: external to DMZ is allowed for specific services, DMZ to internal is strictly limited (e.g., only database ports), internal to DMZ is allowed, and direct external to internal should be blocked"
+  - "Must mention that firewalls between zones enforce these rules, often using a dual-firewall architecture (one between external and DMZ, another between DMZ and internal)"

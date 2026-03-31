@@ -1,0 +1,12 @@
+name: boot_process
+tier: 2
+category: knowledge
+domain: linux_admin
+
+prompt: "Describe the complete Linux boot process from pressing the power button to the login prompt. Cover each major stage including firmware, bootloader, kernel, and init system."
+
+judge_criteria:
+  - "Must describe the firmware stage: BIOS performs POST and looks for a bootable device via MBR, or UEFI reads the EFI System Partition to find a bootloader"
+  - "Must describe the bootloader stage: GRUB2 loads its configuration, presents a menu if configured, and loads the kernel image (vmlinuz) and initial ramdisk (initrd/initramfs) into memory"
+  - "Must describe the kernel stage: kernel decompresses, initializes hardware, mounts the initramfs as temporary root, loads necessary drivers, then mounts the real root filesystem"
+  - "Must describe the init stage: the kernel starts PID 1 (systemd on modern systems), which reads its unit files and starts services according to the default target (e.g., multi-user.target or graphical.target)"

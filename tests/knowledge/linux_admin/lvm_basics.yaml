@@ -1,0 +1,12 @@
+name: lvm_basics
+tier: 2
+category: knowledge
+domain: linux_admin
+
+prompt: "Explain LVM (Logical Volume Manager) concepts including Physical Volumes (PV), Volume Groups (VG), and Logical Volumes (LV). Walk through the process of extending a logical volume that is running out of space."
+
+judge_criteria:
+  - "Must explain the three-layer architecture: Physical Volumes (PV) are raw disks or partitions, Volume Groups (VG) pool PVs together, and Logical Volumes (LV) are carved from VGs"
+  - "Must describe the extension process: pvcreate to initialize a new disk, vgextend to add the PV to the VG, lvextend to grow the LV, and resize2fs (ext4) or xfs_growfs (XFS) to expand the filesystem"
+  - "Must mention that LVM allows online resizing without unmounting for most modern filesystems"
+  - "Must mention the key commands: pvs/pvdisplay, vgs/vgdisplay, lvs/lvdisplay for inspecting the current state"

@@ -1,0 +1,12 @@
+name: arp_poisoning
+tier: 2
+category: knowledge
+domain: networking
+
+prompt: "How does ARP poisoning (ARP spoofing) work? Describe the attack mechanism, what an attacker can achieve with it, and what countermeasures can be used to prevent or detect it."
+
+judge_criteria:
+  - "Must explain that ARP poisoning works by sending forged ARP reply packets to associate the attacker's MAC address with the IP address of another host (such as the default gateway)"
+  - "Must explain the consequences: the attacker can perform man-in-the-middle attacks to intercept, modify, or sniff traffic, or cause denial of service"
+  - "Must mention countermeasures including Dynamic ARP Inspection (DAI), static ARP entries, or 802.1X port-based authentication"
+  - "Must explain that ARP is stateless and trusts all replies, which is the fundamental vulnerability that makes this attack possible"

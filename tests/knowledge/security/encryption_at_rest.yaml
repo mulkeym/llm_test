@@ -1,0 +1,12 @@
+name: encryption_at_rest
+tier: 1
+category: knowledge
+domain: security
+
+prompt: "Explain encryption at rest versus encryption in transit. What are the implementation approaches for each? Describe the role of key management and provide examples using cloud services."
+
+judge_criteria:
+  - "Must explain encryption at rest protects stored data on disk, databases, or backups using algorithms like AES-256, with approaches including full disk encryption (LUKS, BitLocker), database-level encryption (TDE), or application-level encryption"
+  - "Must explain encryption in transit protects data moving between systems using TLS/SSL for HTTPS, TLS for database connections, VPN tunnels, or SSH for management traffic"
+  - "Must discuss key management: who controls the keys (customer-managed vs provider-managed), key rotation policies, envelope encryption (data key encrypted by a master key), and the importance of separating keys from data"
+  - "Must mention cloud service examples such as AWS KMS, Azure Key Vault, or GCP Cloud KMS for managing encryption keys"

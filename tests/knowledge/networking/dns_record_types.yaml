@@ -1,0 +1,13 @@
+name: dns_record_types
+tier: 1
+category: knowledge
+domain: networking
+
+prompt: "Explain the difference between the following DNS record types: A, AAAA, CNAME, MX, and TXT. When would you use each one?"
+
+judge_criteria:
+  - "Must explain A records map a hostname to an IPv4 address"
+  - "Must explain AAAA records map a hostname to an IPv6 address"
+  - "Must explain CNAME records create an alias pointing one hostname to another canonical name, and cannot coexist with other record types at the same name"
+  - "Must explain MX records specify mail servers responsible for receiving email for the domain, including the concept of priority values"
+  - "Must explain TXT records hold arbitrary text data, commonly used for SPF, DKIM, DMARC, or domain ownership verification"

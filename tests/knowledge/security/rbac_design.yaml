@@ -1,0 +1,13 @@
+name: rbac_design
+tier: 3
+category: knowledge
+domain: security
+
+prompt: "Design a Role-Based Access Control (RBAC) model for a healthcare application that handles patient records. Define roles, permissions, and access policies considering HIPAA compliance. How would you handle emergency access (break-glass) scenarios and audit logging?"
+
+judge_criteria:
+  - "Must define distinct roles with clear permission boundaries, e.g., Physician (read/write own patients), Nurse (read assigned patients, limited write), Admin (user management, no patient data access), Billing (read financial data, no clinical data)"
+  - "Must implement the principle of least privilege: users get only the minimum permissions needed for their role, with no blanket admin access to patient records"
+  - "Must address break-glass emergency access: a mechanism for authorized users to access records outside their normal scope in emergencies, with mandatory justification entry and immediate audit notification"
+  - "Must include comprehensive audit logging: who accessed what data, when, from where, and what action was performed, with tamper-proof log storage for HIPAA compliance"
+  - "Must mention HIPAA-specific requirements such as the minimum necessary standard, access controls for PHI, and automatic session timeouts"

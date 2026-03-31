@@ -1,0 +1,13 @@
+name: mtu_fragmentation
+tier: 3
+category: knowledge
+domain: networking
+
+prompt: "Explain MTU, MSS, and Path MTU Discovery (PMTUD). How do they relate to each other? What problems can MTU mismatches cause, and how do you troubleshoot them?"
+
+judge_criteria:
+  - "Must define MTU (Maximum Transmission Unit) as the largest frame size a network link can carry, typically 1500 bytes for Ethernet"
+  - "Must define MSS (Maximum Segment Size) as the largest TCP payload size, which is MTU minus the IP header (20 bytes) and TCP header (20 bytes), so typically 1460 bytes"
+  - "Must explain Path MTU Discovery works by sending packets with the Don't Fragment (DF) bit set and relying on ICMP 'Fragmentation Needed' messages to determine the smallest MTU along the path"
+  - "Must explain that MTU problems often manifest as connections that hang for large packets (e.g., SSH works but SCP stalls), especially when ICMP is blocked, preventing PMTUD from working"
+  - "Must mention troubleshooting approaches such as using ping with specific packet sizes and the DF flag, or reducing MSS via TCP MSS clamping"

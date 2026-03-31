@@ -1,0 +1,12 @@
+name: vpc_design
+tier: 2
+category: knowledge
+domain: cloud_infra
+
+prompt: "Design a VPC architecture for a three-tier web application (web, application, database tiers) with public and private subnets. Include the CIDR scheme, subnet layout across availability zones, routing tables, NAT gateways, and security group rules."
+
+judge_criteria:
+  - "Must define a VPC CIDR block (e.g., 10.0.0.0/16) and divide it into public subnets (for load balancers/web tier) and private subnets (for application and database tiers) across at least 2 availability zones"
+  - "Must include an Internet Gateway attached to the VPC and a route table for public subnets with a 0.0.0.0/0 route pointing to the IGW"
+  - "Must include NAT Gateway(s) in the public subnet(s) and private subnet route tables pointing 0.0.0.0/0 to the NAT Gateway for outbound internet access"
+  - "Must describe security group rules: web tier allows HTTP/HTTPS from internet, app tier allows traffic only from web tier, database tier allows traffic only from app tier on the database port"

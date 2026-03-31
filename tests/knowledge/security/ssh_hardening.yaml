@@ -1,0 +1,12 @@
+name: ssh_hardening
+tier: 1
+category: knowledge
+domain: security
+
+prompt: "List and explain best practices for hardening an SSH server. What configuration changes should be made in sshd_config, and what additional measures should be taken at the network and authentication level?"
+
+judge_criteria:
+  - "Must recommend disabling root login (PermitRootLogin no) and disabling password authentication in favor of key-based authentication (PasswordAuthentication no, PubkeyAuthentication yes)"
+  - "Must recommend changing the default port (though security through obscurity is limited), using AllowUsers or AllowGroups to restrict which users can SSH, and setting MaxAuthTries to limit brute force attempts"
+  - "Must recommend using SSH protocol 2 only, disabling empty passwords, and setting idle timeout (ClientAliveInterval, ClientAliveCountMax)"
+  - "Must mention network-level protections such as firewall rules to restrict SSH source IPs, or tools like fail2ban to block repeated failed authentication attempts"
