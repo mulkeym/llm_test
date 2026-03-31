@@ -253,7 +253,7 @@ elif page == "Test Results":
                                     q.get("expected", "N/A")
                                 ))
 
-                # What the LLM actually did
+                # What the LLM actually did — with failure highlighting
                 st.markdown("#### What the LLM Did")
                 try:
                     transcript = json.loads(r["transcript"]) if isinstance(r["transcript"], str) else r["transcript"]
@@ -267,9 +267,12 @@ elif page == "Test Results":
                         st.error("**Error:** {}".format(last["error"]))
                     else:
                         if category == "tool_calling":
-                            # Show tool calls the model made
+                            # Extract actual tool calls from transcript
                             model_calls = []
                             model_responses = []
+                            available = test_def.get("available_tools", [])
+                            expected_calls = test_def.get("expected_tool_calls", [])
+
                             for msg in transcript:
                                 if isinstance(msg, dict):
                                     if msg.get("role") == "assistant" and msg.get("tool_calls"):
@@ -286,14 +289,97 @@ elif page == "Test Results":
                                     elif msg.get("role") == "assistant" and msg.get("content"):
                                         model_responses.append(msg["content"])
 
-                            if model_calls:
-                                st.markdown("**Tool calls made by model:**")
-                                for i, mc in enumerate(model_calls, 1):
-                                    params_str = json.dumps(mc["params"], indent=2) if isinstance(mc["params"], dict) else str(mc["params"])
-                                    st.markdown("{}. `{}`".format(i, mc["tool"]))
-                                    st.code(params_str, language="json")
+                            if not model_calls:
+                                st.error("Model made **no tool calls** — expected {} call(s).".format(len(expected_calls)))
                             else:
-                                st.warning("Model made no tool calls.")
+                                # Compare expected vs actual side by side
+                                expected_names = [ec["tool"] for ec in expected_calls]
+                                actual_names = [mc["tool"] for mc in model_calls]
+
+                                # Check ordering
+                                actual_in_expected_order = [a for a in actual_names if a in expected_names]
+                                order_correct = actual_in_expected_order == expected_names
+
+                                # Hallucination check
+                                hallucinated = [a for a in actual_names if a not in available]
+                                missing_tools = [e for e in expected_names if e not in actual_names]
+                                extra_tools = [a for a in actual_names if a not in expected_names and a in available]
+
+                                # Summary issues
+                                issues = []
+                                if missing_tools:
+                                    issues.append("Missing tools: **{}**".format(", ".join("`{}`".format(t) for t in missing_tools)))
+                                if hallucinated:
+                                    issues.append("Hallucinated tools (not in available set): **{}**".format(", ".join("`{}`".format(t) for t in hallucinated)))
+                                if extra_tools:
+                                    issues.append("Extra tools called (not expected): **{}**".format(", ".join("`{}`".format(t) for t in extra_tools)))
+                                if not order_correct and len(expected_calls) > 1:
+                                    issues.append("Wrong ordering — expected: {} | got: {}".format(
+                                        " → ".join("`{}`".format(n) for n in expected_names),
+                                        " → ".join("`{}`".format(n) for n in actual_names),
+                                    ))
+
+                                if issues:
+                                    st.markdown("**Issues found:**")
+                                    for issue in issues:
+                                        st.warning(issue)
+
+                                # Per-call comparison
+                                st.markdown("**Step-by-step comparison:**")
+                                max_steps = max(len(expected_calls), len(model_calls))
+                                for i in range(max_steps):
+                                    exp = expected_calls[i] if i < len(expected_calls) else None
+                                    act = model_calls[i] if i < len(model_calls) else None
+
+                                    st.markdown("---")
+                                    st.markdown("**Step {}**".format(i + 1))
+                                    col_exp, col_act = st.columns(2)
+
+                                    with col_exp:
+                                        if exp:
+                                            st.markdown("*Expected:*")
+                                            params_str = ", ".join("{}={}".format(k, v) for k, v in exp.get("params", {}).items())
+                                            st.code("{}({})".format(exp["tool"], params_str), language=None)
+                                        else:
+                                            st.markdown("*Expected:*")
+                                            st.info("No more expected calls")
+
+                                    with col_act:
+                                        if act:
+                                            st.markdown("*Model called:*")
+                                            act_params = json.dumps(act["params"], indent=2) if isinstance(act["params"], dict) else str(act["params"])
+
+                                            # Highlight match/mismatch
+                                            if exp and act["tool"] == exp["tool"]:
+                                                # Tool name matches — check params
+                                                exp_params = exp.get("params", {})
+                                                act_p = act["params"] if isinstance(act["params"], dict) else {}
+                                                param_issues = []
+                                                for pk, pv in exp_params.items():
+                                                    av = act_p.get(pk)
+                                                    if av is None:
+                                                        param_issues.append("missing `{}`".format(pk))
+                                                    elif str(av).lower() != str(pv).lower():
+                                                        param_issues.append("`{}`: expected `{}`, got `{}`".format(pk, pv, av))
+
+                                                if param_issues:
+                                                    st.code("{}({})".format(act["tool"], act_params), language="json")
+                                                    for pi in param_issues:
+                                                        st.warning("Param mismatch: {}".format(pi))
+                                                else:
+                                                    st.success("`{}` — correct".format(act["tool"]))
+                                                    st.code(act_params, language="json")
+                                            elif exp:
+                                                # Wrong tool
+                                                st.error("`{}` — expected `{}`".format(act["tool"], exp["tool"]))
+                                                st.code(act_params, language="json")
+                                            else:
+                                                # Extra call
+                                                st.warning("`{}` — extra call (not expected)".format(act["tool"]))
+                                                st.code(act_params, language="json")
+                                        else:
+                                            st.markdown("*Model called:*")
+                                            st.error("No call made — expected `{}`".format(exp["tool"] if exp else "?"))
 
                             if model_responses:
                                 st.markdown("**Model's final response:**")
@@ -301,21 +387,72 @@ elif page == "Test Results":
 
                         elif category == "knowledge":
                             # Show the model's answer
+                            model_answer = None
                             for msg in transcript:
                                 if isinstance(msg, dict) and msg.get("role") == "assistant":
                                     content = msg.get("content", "")
                                     if content:
-                                        st.markdown("**Model's answer:**")
-                                        st.markdown(content)
+                                        model_answer = content
                                         break
 
+                            if model_answer:
+                                st.markdown("**Model's answer:**")
+                                st.markdown(model_answer)
+
+                                # Check judge criteria coverage
+                                criteria = test_def.get("judge_criteria", [])
+                                if criteria and status != "passed":
+                                    st.markdown("**Criteria check (approximate):**")
+                                    answer_lower = model_answer.lower()
+                                    for c in criteria:
+                                        # Extract key terms from the criterion
+                                        # Simple heuristic: check if key words appear in response
+                                        key_terms = []
+                                        # Look for quoted or parenthesized values
+                                        import re
+                                        paren_vals = re.findall(r'\(([^)]+)\)', c)
+                                        for val in paren_vals:
+                                            key_terms.append(val.strip().lower())
+                                        if key_terms:
+                                            found = any(term in answer_lower for term in key_terms)
+                                        else:
+                                            # Fall back to checking a few significant words
+                                            words = [w.lower() for w in c.split() if len(w) > 4]
+                                            found = sum(1 for w in words if w in answer_lower) > len(words) * 0.5
+                                        if found:
+                                            st.markdown("- {} {}".format(c, ""))
+                                        else:
+                                            st.warning("Possibly missing: {}".format(c))
+                            else:
+                                st.error("Model produced no response.")
+
                         elif category == "context":
-                            # Show question/response pairs
+                            # Show question/response pairs with match highlighting
+                            questions = test_def.get("questions", [])
                             if isinstance(transcript, list):
-                                for item in transcript:
+                                for idx, item in enumerate(transcript):
                                     if isinstance(item, dict) and "question" in item:
-                                        st.markdown("**Q:** {}".format(item["question"]))
-                                        st.markdown("**Model answered:** {}".format(item.get("response", "No response")[:500]))
+                                        q_text = item["question"]
+                                        response = item.get("response", "No response")
+
+                                        # Find matching expected answer
+                                        expected_answer = ""
+                                        if idx < len(questions):
+                                            q_def = questions[idx]
+                                            if isinstance(q_def, dict):
+                                                expected_answer = q_def.get("expected", "")
+
+                                        st.markdown("**Q:** {}".format(q_text))
+                                        st.markdown("**Expected:** `{}`".format(expected_answer))
+                                        st.markdown("**Model answered:** {}".format(response[:500]))
+
+                                        # Highlight if expected answer appears in response
+                                        if expected_answer:
+                                            if expected_answer.lower() in response.lower():
+                                                st.success("Contains expected answer")
+                                            else:
+                                                st.error("Expected answer `{}` NOT found in response".format(expected_answer))
+                                        st.markdown("---")
                                         st.markdown("---")
 
                 elif isinstance(transcript, dict) and "error" in transcript:
