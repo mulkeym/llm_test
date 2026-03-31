@@ -1,0 +1,23 @@
+name: long_config_review
+tier: 3
+category: context
+context_size: 32000
+filler: config_dump
+
+needle:
+  - text: "max_connections = 500  # default setting per DBA team"
+    position: 0.2
+  - text: "# Memcached cluster endpoint changed to memcache-prod-03.internal.example.com:11211 for region us-east-1"
+    position: 0.5
+  - text: "max_connections = 1000  # updated per ticket INC-4521 to handle increased traffic"
+    position: 0.8
+
+questions:
+  - question: "What is the current max_connections setting and which ticket authorized the change?"
+    expected: "1000, INC-4521"
+  - question: "What is the Memcached cluster endpoint for us-east-1?"
+    expected: "memcache-prod-03.internal.example.com:11211"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

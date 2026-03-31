@@ -1,0 +1,17 @@
+name: find_user_in_logs
+tier: 1
+category: context
+context_size: 2500
+filler: log_dump
+
+needle:
+  - text: "Mar 15 09:15:22 auth-prod-01 sshd[18234]: Accepted password for user dthompson from 10.0.5.88 port 52341"
+    position: 0.7
+
+questions:
+  - question: "Which user logged in from IP 10.0.5.88?"
+    expected: "dthompson"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

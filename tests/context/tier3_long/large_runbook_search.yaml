@@ -1,0 +1,33 @@
+name: large_runbook_search
+tier: 3
+category: context
+context_size: 35000
+filler: runbook
+
+needle:
+  - text: "The primary API gateway was reassigned to IP 10.100.5.17 after the network redesign"
+    position: 0.1
+  - text: "Password rotation policy was updated: all service accounts must rotate credentials every 60 days, enforced by Vault"
+    position: 0.3
+  - text: "For P1 incidents outside business hours, contact the on-call SRE lead Sarah Chen at +1-555-0142"
+    position: 0.5
+  - text: "Full database backups are taken every Sunday at 01:00 UTC and incrementals run daily at 04:00 UTC"
+    position: 0.7
+  - text: "Server app-legacy-01 is scheduled for decommission on 2026-04-30; all workloads must be migrated to app-k8s-03 by then"
+    position: 0.9
+
+questions:
+  - question: "What IP address was the primary API gateway reassigned to?"
+    expected: "10.100.5.17"
+  - question: "How often must service accounts rotate their credentials according to the updated policy?"
+    expected: "Every 60 days"
+  - question: "Who is the on-call SRE lead for P1 incidents and what is their phone number?"
+    expected: "Sarah Chen, +1-555-0142"
+  - question: "When are full database backups taken?"
+    expected: "Every Sunday at 01:00 UTC"
+  - question: "What is the decommission date for app-legacy-01 and where must workloads be migrated?"
+    expected: "2026-04-30, app-k8s-03"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

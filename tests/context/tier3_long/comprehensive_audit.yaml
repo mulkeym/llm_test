@@ -1,0 +1,33 @@
+name: comprehensive_audit
+tier: 3
+category: context
+context_size: 50000
+filler: runbook
+
+needle:
+  - text: "The new IPMI management interface for rack 14 is accessible at 172.25.0.100 with credentials stored in Vault path secret/ipmi/rack14"
+    position: 0.1
+  - text: "Hostname k8s-worker-node-17.prod.example.com was added to the cluster on 2026-03-12 running Kubernetes v1.29.3"
+    position: 0.3
+  - text: "The next change freeze window begins on 2026-04-01 and ends on 2026-04-07 per the Q1 change advisory board decision"
+    position: 0.5
+  - text: "PostgreSQL replication lag threshold was changed from 30 seconds to 10 seconds on replica db-replica-04"
+    position: 0.7
+  - text: "The disaster recovery site in us-west-2 completed its annual failover test on 2026-03-20 with an RTO of 12 minutes"
+    position: 0.9
+
+questions:
+  - question: "What is the IPMI management IP for rack 14 and where are the credentials stored?"
+    expected: "172.25.0.100, Vault path secret/ipmi/rack14"
+  - question: "What Kubernetes version is running on k8s-worker-node-17 and when was it added?"
+    expected: "v1.29.3, 2026-03-12"
+  - question: "When does the next change freeze window begin and end?"
+    expected: "2026-04-01 to 2026-04-07"
+  - question: "What is the new replication lag threshold on db-replica-04?"
+    expected: "10 seconds"
+  - question: "What was the RTO achieved during the DR failover test in us-west-2?"
+    expected: "12 minutes"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

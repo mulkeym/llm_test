@@ -1,0 +1,25 @@
+name: mixed_server_facts
+tier: 2
+category: context
+context_size: 15000
+filler: runbook
+
+needle:
+  - text: "Server web-prod-04 was decommissioned on February 28th due to hardware failure"
+    position: 0.2
+  - text: "The SSL wildcard certificate for *.internal.example.com expires on 2026-09-15"
+    position: 0.5
+  - text: "Load balancer lb-prod-02 was upgraded to 32GB RAM on March 10th"
+    position: 0.8
+
+questions:
+  - question: "Why was web-prod-04 decommissioned and on what date?"
+    expected: "Hardware failure, February 28th"
+  - question: "When does the SSL wildcard certificate for *.internal.example.com expire?"
+    expected: "2026-09-15"
+  - question: "How much RAM does lb-prod-02 have after its upgrade?"
+    expected: "32GB"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

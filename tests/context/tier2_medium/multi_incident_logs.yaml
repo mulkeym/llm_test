@@ -1,0 +1,25 @@
+name: multi_incident_logs
+tier: 2
+category: context
+context_size: 12000
+filler: log_dump
+
+needle:
+  - text: "Mar 15 10:45:33 web-prod-03 kernel: Out of memory: Kill process 8891 (java) score 950"
+    position: 0.2
+  - text: "Mar 15 11:30:15 db-prod-02 postgresql[5432]: FATAL: too many connections for role 'appuser'"
+    position: 0.5
+  - text: "Mar 15 12:15:44 cache-prod-01 redis[6379]: WARNING: maxmemory reached, evicting keys"
+    position: 0.8
+
+questions:
+  - question: "Which process was killed by the OOM killer on web-prod-03, and what was its PID?"
+    expected: "java, PID 8891"
+  - question: "Which database role hit the connection limit on db-prod-02?"
+    expected: "appuser"
+  - question: "What warning did Redis report on cache-prod-01?"
+    expected: "maxmemory reached, evicting keys"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

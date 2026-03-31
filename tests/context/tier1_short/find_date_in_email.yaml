@@ -1,0 +1,17 @@
+name: find_date_in_email
+tier: 1
+category: context
+context_size: 2000
+filler: email_thread
+
+needle:
+  - text: "The database migration is scheduled for March 22nd at 03:00 UTC during the maintenance window"
+    position: 0.4
+
+questions:
+  - question: "When is the database migration scheduled?"
+    expected: "March 22nd at 03:00 UTC"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

@@ -1,0 +1,21 @@
+name: network_migration_details
+tier: 2
+category: context
+context_size: 10000
+filler: runbook
+
+needle:
+  - text: "The backup DNS server was migrated to 10.22.7.45 on March 3rd"
+    position: 0.25
+  - text: "Port 8443 was opened for the monitoring agent on db-prod-03"
+    position: 0.75
+
+questions:
+  - question: "What IP address was the backup DNS server migrated to?"
+    expected: "10.22.7.45"
+  - question: "What port was opened for the monitoring agent on db-prod-03?"
+    expected: "8443"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

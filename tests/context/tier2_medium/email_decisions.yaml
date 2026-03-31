@@ -1,0 +1,21 @@
+name: email_decisions
+tier: 2
+category: context
+context_size: 10000
+filler: email_thread
+
+needle:
+  - text: "After discussion, the team agreed to use Consul for service discovery instead of etcd"
+    position: 0.35
+  - text: "The budget for the Q2 infrastructure upgrade was approved at $45,000"
+    position: 0.65
+
+questions:
+  - question: "What tool did the team decide to use for service discovery?"
+    expected: "Consul"
+  - question: "What was the approved budget for the Q2 infrastructure upgrade?"
+    expected: "$45,000"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

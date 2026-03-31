@@ -1,0 +1,17 @@
+name: find_hostname_in_runbook
+tier: 1
+category: context
+context_size: 3500
+filler: runbook
+
+needle:
+  - text: "The new backup NFS server has been provisioned as nfs-backup-02.internal.example.com"
+    position: 0.6
+
+questions:
+  - question: "What is the hostname of the new backup NFS server?"
+    expected: "nfs-backup-02.internal.example.com"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

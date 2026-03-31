@@ -1,0 +1,17 @@
+name: find_port_in_config
+tier: 1
+category: context
+context_size: 3000
+filler: config_dump
+
+needle:
+  - text: "The new Redis cache instance is listening on port 6380 instead of the default 6379"
+    position: 0.3
+
+questions:
+  - question: "What port is the new Redis cache instance using?"
+    expected: "6380"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

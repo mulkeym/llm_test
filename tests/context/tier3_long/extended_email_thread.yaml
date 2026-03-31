@@ -1,0 +1,27 @@
+name: extended_email_thread
+tier: 3
+category: context
+context_size: 35000
+filler: email_thread
+
+needle:
+  - text: "The project Phoenix launch deadline has been set for June 15th, 2026 as agreed in the steering committee meeting"
+    position: 0.15
+  - text: "After evaluating all proposals, we selected CloudMatrix as the managed Kubernetes vendor for the migration"
+    position: 0.4
+  - text: "Finance has revised the migration budget from $120,000 to $150,000 to account for additional training costs"
+    position: 0.6
+  - text: "UPDATE: The project Phoenix launch deadline has been moved to July 1st, 2026 due to vendor delays communicated this morning"
+    position: 0.85
+
+questions:
+  - question: "What is the current launch deadline for project Phoenix?"
+    expected: "July 1st, 2026"
+  - question: "Which vendor was selected for managed Kubernetes?"
+    expected: "CloudMatrix"
+  - question: "What is the revised migration budget and why was it increased?"
+    expected: "$150,000, additional training costs"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

@@ -1,0 +1,29 @@
+name: massive_log_analysis
+tier: 3
+category: context
+context_size: 40000
+filler: log_dump
+
+needle:
+  - text: "Mar 15 03:12:07 storage-prod-01 smartd[2100]: Device /dev/sda: SMART Failure - disk replacement required within 24 hours"
+    position: 0.15
+  - text: "Mar 15 07:44:19 web-prod-05 nginx[1100]: upstream timed out (110: Connection timed out) while connecting to upstream 10.0.3.55:8080"
+    position: 0.4
+  - text: "Mar 15 09:33:51 auth-prod-02 pam_unix(sshd:auth)[19200]: authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=45.33.32.156 user=root"
+    position: 0.6
+  - text: "Mar 15 14:22:08 db-prod-01 postgresql[5432]: ERROR: could not extend file \"base/16384/2619\": No space left on device"
+    position: 0.85
+
+questions:
+  - question: "Which storage device on storage-prod-01 requires replacement and within what timeframe?"
+    expected: "/dev/sda, within 24 hours"
+  - question: "What upstream IP and port timed out for nginx on web-prod-05?"
+    expected: "10.0.3.55:8080"
+  - question: "What remote IP attempted a failed root login on auth-prod-02?"
+    expected: "45.33.32.156"
+  - question: "What error did PostgreSQL report on db-prod-01?"
+    expected: "No space left on device"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

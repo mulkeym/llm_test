@@ -1,0 +1,17 @@
+name: find_ip_in_runbook
+tier: 1
+category: context
+context_size: 2000
+filler: runbook
+
+needle:
+  - text: "The monitoring server was moved to IP address 172.16.50.23 on January 15th"
+    position: 0.5
+
+questions:
+  - question: "What IP address was the monitoring server moved to?"
+    expected: "172.16.50.23"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3

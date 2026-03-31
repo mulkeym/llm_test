@@ -1,0 +1,21 @@
+name: config_changes_audit
+tier: 2
+category: context
+context_size: 8000
+filler: config_dump
+
+needle:
+  - text: "# Changed by: jrodriguez on 2026-02-15 - Added rate limit for /api/v2 endpoint to 50 req/s"
+    position: 0.3
+  - text: "# Changed by: asmith on 2026-03-01 - Increased worker_connections from 1024 to 4096"
+    position: 0.7
+
+questions:
+  - question: "Who added the rate limit for the /api/v2 endpoint, and what was the limit set to?"
+    expected: "jrodriguez, 50 req/s"
+  - question: "Who increased worker_connections and what was the new value?"
+    expected: "asmith, 4096"
+
+scoring:
+  retrieval_accuracy: 7
+  position_agnostic: 3
