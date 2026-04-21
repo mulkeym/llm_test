@@ -140,6 +140,18 @@ class ContextGenerator:
     def __init__(self, seed: Optional[int] = None):
         self.rng = random.Random(seed)
 
+    # Approximate characters-per-token by content type.
+    # Prose (runbook, email) averages ~4 chars/token.
+    # Structured content (configs, logs) with IPs, ports, and special
+    # characters tokenizes at ~2-2.5 chars/token due to numeric
+    # sequences, punctuation, and short subword splits.
+    CHARS_PER_TOKEN = {
+        "runbook": 4.0,
+        "email_thread": 4.0,
+        "log_dump": 2.5,
+        "config_dump": 2.5,
+    }
+
     def generate_filler(self, filler_type: str, target_tokens: int) -> str:
         lines_map = {
             "runbook": self.RUNBOOK_LINES,
@@ -148,7 +160,8 @@ class ContextGenerator:
             "email_thread": self.EMAIL_LINES,
         }
         source = lines_map.get(filler_type, self.RUNBOOK_LINES)
-        target_chars = target_tokens * 4
+        chars_per_token = self.CHARS_PER_TOKEN.get(filler_type, 4.0)
+        target_chars = int(target_tokens * chars_per_token)
         result_lines = []
         current_chars = 0
         while current_chars < target_chars:

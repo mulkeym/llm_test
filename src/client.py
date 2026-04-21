@@ -58,11 +58,16 @@ class LLMClient:
         messages: List[Dict],
         tools: Optional[List[Dict]] = None,
         model: str = "default",
+        max_tokens: Optional[int] = None,
+        timeout: Optional[int] = None,
     ) -> Dict:
         kwargs = {"model": model, "messages": messages}
+        if max_tokens is not None:
+            kwargs["max_tokens"] = max_tokens
         if tools:
             kwargs["tools"] = self._build_tools_payload(tools)
-        response = self.client.chat.completions.create(**kwargs)
+        client = self.client if timeout is None else self.client.with_options(timeout=timeout)
+        response = client.chat.completions.create(**kwargs)
         message = response.choices[0].message
         return {
             "role": "assistant",

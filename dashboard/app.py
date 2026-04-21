@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -23,6 +24,17 @@ def get_test_definitions():
 
 
 test_defs = get_test_definitions()
+
+
+def fetch_models(base_url):
+    """Fetch available model IDs from an OpenAI-compatible /v1/models endpoint."""
+    try:
+        resp = requests.get("{}/v1/models".format(base_url.rstrip("/")), timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        return [m["id"] for m in data.get("data", [])]
+    except Exception:
+        return []
 
 
 def make_run_label(r):
@@ -340,7 +352,26 @@ if page == "Dashboard":
                 "run_id": run["id"],
             })
         df = pd.DataFrame(rows).sort_values("Composite %", ascending=False)
-        st.dataframe(df.drop(columns=["run_id"]), use_container_width=True, hide_index=True)
+        display_df = df.drop(columns=["run_id"])
+        display_df.insert(0, "Delete", False)
+
+        edited_df = st.data_editor(
+            display_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Delete": st.column_config.CheckboxColumn("Delete", default=False, width="small"),
+            },
+            disabled=[c for c in display_df.columns if c != "Delete"],
+            key="leaderboard_editor",
+        )
+
+        marked = edited_df[edited_df["Delete"] == True]
+        if len(marked) > 0:
+            if st.button("Delete {} selected run(s)".format(len(marked)), type="primary"):
+                for idx in marked.index:
+                    db.delete_run(int(df.loc[idx, "run_id"]))
+                st.rerun()
 
         # ── Test Results ──
         st.markdown("---")
@@ -429,16 +460,33 @@ if page == "Dashboard":
 elif page == "Run Benchmark":
     st.title("Run Benchmark")
 
-    with st.form("run_benchmark_form"):
-        st.markdown("Configure and launch a benchmark run.")
+    st.markdown("Configure and launch a benchmark run.")
 
-        col1, col2 = st.columns(2)
-        with col1:
-            run_base_url = st.text_input("API Endpoint", value="http://192.168.1.181:8080",
-                                         help="OpenAI-compatible API base URL (e.g., llama.cpp server)")
-        with col2:
-            run_model_name = st.text_input("Model Name", value="",
-                                           help="Label for this model (used in leaderboard)")
+    run_base_url = st.text_input("API Endpoint", value="http://192.168.1.181:8080",
+                                 key="run_base_url",
+                                 help="OpenAI-compatible API base URL (e.g., llama.cpp server)")
+
+    # Fetch models when endpoint changes
+    if "last_endpoint" not in st.session_state:
+        st.session_state.last_endpoint = None
+        st.session_state.available_models = []
+
+    endpoint = run_base_url.strip()
+    if endpoint and endpoint != st.session_state.last_endpoint:
+        with st.spinner("Fetching models from {}...".format(endpoint)):
+            st.session_state.available_models = fetch_models(endpoint)
+            st.session_state.last_endpoint = endpoint
+
+    if st.session_state.available_models:
+        st.success("Found {} model(s)".format(len(st.session_state.available_models)))
+        run_model_name = st.selectbox("Model", st.session_state.available_models, index=0)
+    else:
+        if endpoint:
+            st.warning("Could not fetch models from endpoint. Enter model name manually.")
+        run_model_name = st.text_input("Model Name", value="",
+                                       help="Label for this model (used in leaderboard)")
+
+    with st.form("run_benchmark_form"):
 
         col3, col4 = st.columns(2)
         with col3:
@@ -463,12 +511,20 @@ elif page == "Run Benchmark":
                                             help="Model name on the judge endpoint")
             judge_api_key = st.text_input("Judge API Key (optional)", value="", type="password",
                                           help="API key for the judge endpoint (OpenAI, etc.)")
+            judge_auth_type = "api_key"
         else:
             judge_base_url = ""
             judge_model = st.text_input("Judge Model", value="claude-sonnet-4-6",
                                         help="Model to use as judge")
-            judge_api_key = st.text_input("Judge API Key (optional)", value="", type="password",
-                                          help="Anthropic API key — leave blank to use ANTHROPIC_API_KEY from .env")
+            judge_auth_type = st.selectbox("Judge Auth Method", ["api_key", "oauth"],
+                                           help="'api_key' uses ANTHROPIC_API_KEY. 'oauth' uses your Claude Code subscription via ANTHROPIC_AUTH_TOKEN.")
+            if judge_auth_type == "api_key":
+                judge_api_key = st.text_input("Judge API Key (optional)", value="", type="password",
+                                              help="Anthropic API key — leave blank to use ANTHROPIC_API_KEY from .env")
+            else:
+                judge_api_key = ""
+                st.info("Using Claude Code OAuth. Set ANTHROPIC_AUTH_TOKEN in your environment or .env file. "
+                        "Run `claude setup-token` to generate a long-lived token.")
 
         st.markdown("---")
         st.markdown("**Test Categories**")
@@ -488,6 +544,10 @@ elif page == "Run Benchmark":
             run_tier2 = st.checkbox("Tier 2 (Intermediate)", value=True)
         with col10:
             run_tier3 = st.checkbox("Tier 3 (Advanced)", value=True)
+
+        run_max_context = st.number_input(
+            "Max Context Tokens (0 = no limit)", value=0, min_value=0, max_value=200000, step=1000,
+            help="Skip context tests with context_size above this value. Set to your server's actual capacity (e.g., 35000).")
 
         submitted = st.form_submit_button("Start Benchmark", type="primary")
 
@@ -538,7 +598,10 @@ elif page == "Run Benchmark":
                         judge_model=judge_model.strip() or None,
                         judge_base_url=judge_base_url.strip() or None,
                         judge_api_key=judge_api_key.strip() or None,
+                        judge_auth_type=judge_auth_type,
                     )
+                    if run_max_context > 0:
+                        runner.config["run"]["max_context_tokens"] = run_max_context
 
                     status_text.markdown("**Starting benchmark...**")
                     run_id = runner.run(

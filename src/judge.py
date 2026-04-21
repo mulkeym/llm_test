@@ -9,16 +9,22 @@ class Judge:
         api_key: Optional[str] = None,
         model: str = "claude-sonnet-4-6",
         base_url: Optional[str] = None,
+        auth_type: str = "api_key",
+        auth_token: Optional[str] = None,
+        max_retries: int = 5,
     ):
         self.provider = provider
         self.model = model
 
         if provider == "anthropic":
             import anthropic
-            self.client = anthropic.Anthropic(api_key=api_key)
+            if auth_type == "oauth":
+                self.client = anthropic.Anthropic(auth_token=auth_token, max_retries=max_retries)
+            else:
+                self.client = anthropic.Anthropic(api_key=api_key, max_retries=max_retries)
         elif provider == "openai":
             from openai import OpenAI
-            kwargs = {"api_key": api_key or "not-needed"}
+            kwargs = {"api_key": api_key or "not-needed", "max_retries": max_retries}
             if base_url:
                 kwargs["base_url"] = base_url if base_url.endswith("/v1") else base_url + "/v1"
             self.client = OpenAI(**kwargs)

@@ -1,12 +1,18 @@
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import yaml
 from dotenv import load_dotenv
+
+
+def strip_thinking(text: str) -> str:
+    """Remove <think>...</think> blocks from model output."""
+    return re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL).strip()
 
 from .client import LLMClient
 from .context import ContextGenerator
@@ -24,7 +30,8 @@ class BenchmarkRunner:
                  judge_provider: Optional[str] = None,
                  judge_model: Optional[str] = None,
                  judge_base_url: Optional[str] = None,
-                 judge_api_key: Optional[str] = None):
+                 judge_api_key: Optional[str] = None,
+                 judge_auth_type: Optional[str] = None):
         load_dotenv()
         with open(config_path) as f:
             self.config = yaml.safe_load(f)
@@ -40,16 +47,25 @@ class BenchmarkRunner:
         j_provider = judge_provider or self.config["judge"].get("provider", "anthropic")
         j_model = judge_model or self.config["judge"].get("model", "claude-sonnet-4-6")
         j_base_url = judge_base_url or self.config["judge"].get("base_url")
-        if j_provider == "anthropic":
-            j_api_key = judge_api_key or os.getenv("ANTHROPIC_API_KEY")
+        j_auth_type = judge_auth_type or self.config["judge"].get("auth_type", "api_key")
+
+        if j_auth_type == "oauth":
+            j_api_key = None
+            j_auth_token = os.getenv("ANTHROPIC_AUTH_TOKEN")
         else:
-            j_api_key = judge_api_key or self.config["judge"].get("api_key", "")
+            j_auth_token = None
+            if j_provider == "anthropic":
+                j_api_key = judge_api_key or os.getenv("ANTHROPIC_API_KEY")
+            else:
+                j_api_key = judge_api_key or self.config["judge"].get("api_key", "")
 
         self.judge = Judge(
             provider=j_provider,
             api_key=j_api_key,
             model=j_model,
             base_url=j_base_url,
+            auth_type=j_auth_type,
+            auth_token=j_auth_token,
         )
         self.db = Database()
         self.scorer = ToolCallScorer()
@@ -89,6 +105,12 @@ class BenchmarkRunner:
 
             if progress_callback:
                 progress_callback(i, len(test_cases), category, name, tc.get("tier", "?"))
+
+            max_ctx = run_cfg.get("max_context_tokens", 0)
+            if category == "context" and max_ctx > 0 and tc.get("context_size", 0) > max_ctx:
+                print("SKIP (context_size {} > max_context_tokens {})".format(
+                    tc["context_size"], max_ctx))
+                continue
 
             try:
                 if category == "tool_calling":
@@ -167,11 +189,13 @@ class BenchmarkRunner:
             {"role": "system", "content": "You are a knowledgeable IT professional. Answer technical questions accurately and thoroughly."},
             {"role": "user", "content": tc["prompt"]},
         ]
-        result = self.client.chat(messages, model=model_name)
-        transcript = messages + [{"role": "assistant", "content": result["content"]}]
+        result = self.client.chat(messages, model=model_name, max_tokens=4096)
+        raw_content = result["content"] or ""
+        answer = strip_thinking(raw_content)
+        transcript = messages + [{"role": "assistant", "content": raw_content}]
         judgement = self.judge.judge_knowledge(
             question=tc["prompt"],
-            response=result["content"] or "",
+            response=answer,
             criteria=tc.get("judge_criteria", []),
         )
         score = judgement.get("weighted_total", 0)
@@ -200,11 +224,12 @@ class BenchmarkRunner:
                 {"role": "system", "content": "Read the following document carefully and answer the question based only on the information in the document."},
                 {"role": "user", "content": "DOCUMENT:\n{}\n\nQUESTION: {}".format(document, question_text)},
             ]
-            result = self.client.chat(messages, model=model_name)
-            response_text = result["content"] or ""
-            transcript.append({"question": question_text, "response": response_text})
+            result = self.client.chat(messages, model=model_name, max_tokens=4096)
+            raw_content = result["content"] or ""
+            answer = strip_thinking(raw_content)
+            transcript.append({"question": question_text, "response": raw_content})
 
-            judgement = self.judge.judge_context(question_text, response_text, expected)
+            judgement = self.judge.judge_context(question_text, answer, expected)
             total_score += judgement.get("score", 0)
 
         return total_score, max_score if max_score > 0 else 1, transcript

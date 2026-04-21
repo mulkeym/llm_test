@@ -105,5 +105,15 @@ class Database:
         ).fetchall()
         return [dict(r) for r in rows]
 
+    def delete_run(self, run_id: int):
+        result_ids = self.conn.execute(
+            "SELECT id FROM results WHERE run_id = ?", (run_id,)
+        ).fetchall()
+        for r in result_ids:
+            self.conn.execute("DELETE FROM judgements WHERE result_id = ?", (r["id"],))
+        self.conn.execute("DELETE FROM results WHERE run_id = ?", (run_id,))
+        self.conn.execute("DELETE FROM runs WHERE id = ?", (run_id,))
+        self.conn.commit()
+
     def close(self):
         self.conn.close()

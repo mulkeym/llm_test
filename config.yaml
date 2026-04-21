@@ -7,6 +7,7 @@ target_api:
 judge:
   provider: anthropic
   model: claude-sonnet-4-6
+  auth_type: oauth  # "api_key" uses ANTHROPIC_API_KEY, "oauth" uses ANTHROPIC_AUTH_TOKEN (Claude Code subscription)
 
 scoring:
   tool_weight: 0.4
@@ -17,3 +18,4 @@ run:
   tiers: [1, 2, 3]
   categories: [tool_calling, knowledge, context]
   domains: []
+  max_context_tokens: 0  # Skip context tests above this size (0 = no limit)
